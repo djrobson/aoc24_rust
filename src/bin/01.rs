@@ -16,7 +16,11 @@ pub fn part_one(input: &str) -> Option<u32> {
 
     list1.sort();
     list2.sort();
-    let sum: u32 = list1.iter().zip(list2.iter()).map(|(a, b)| a.abs_diff(*b)).sum();
+    let sum: u32 = list1
+        .iter()
+        .zip(list2.iter())
+        .map(|(a, b)| a.abs_diff(*b))
+        .sum();
     Some(sum)
 }
 
