@@ -14,8 +14,11 @@ pub fn part_one(input: &str) -> Option<u32> {
         list2.push(second);
     }
 
+    // order the lists by size
     list1.sort();
     list2.sort();
+
+    // calculate differences between the two lists and sum them
     let sum: u32 = list1
         .iter()
         .zip(list2.iter())
@@ -28,7 +31,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     let mut list1 = Vec::new();
     let mut hash2: HashMap<u32, u32> = HashMap::new();
 
-    // read lines from a file, split the line into 2 integers, push the first into list2 and the second into list2
+    // read lines from a file, split the line into 2 integers, push the first into list2 and increment count of second in hash2
     for line in input.lines() {
         let mut split = line.split("   ");
         let first = split.next().unwrap().parse::<u32>().unwrap();
@@ -37,6 +40,7 @@ pub fn part_two(input: &str) -> Option<u32> {
         list1.push(first);
         *hash2.entry(second).or_insert(0) += 1
     }
+    // sum the products of items in the first list with counts in the second list
     let sum = list1.iter().map(|n| n * hash2.get(n).unwrap_or(&0)).sum();
     Some(sum)
 }
@@ -54,6 +58,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(31));
     }
 }
