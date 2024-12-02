@@ -1,5 +1,34 @@
 advent_of_code::solution!(2);
 
+pub fn is_valid(report: &Vec<u32>) -> bool {
+    if report.len() < 2 {
+        return false;
+    }
+    let mut prev = report[0];
+    // look for ascending
+    if report[0] < report[1] {
+        for rec in report.iter().skip(1) {
+            if prev >= *rec || *rec - prev > 3 {
+                return false;
+            }
+            prev = *rec;
+        }
+        return true;
+    }
+    // look for decending order
+    else if report[0] > report[1] {
+        for rec in report.iter().skip(1) {
+            if prev <= *rec || prev - *rec > 3 {
+                return false;
+            }
+            prev = *rec;
+        }
+        return true;
+    }
+    // skip if elements are equal
+    false
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
     let mut valid = 0;
     for line in input.lines() {
@@ -7,42 +36,37 @@ pub fn part_one(input: &str) -> Option<u32> {
             .split_whitespace()
             .map(|x| x.parse().unwrap())
             .collect();
-        //reports.push(report);
-        if report.len() < 2 {
-            continue;
-        }
 
-        let mut prev = report[0];
-        let mut count = 1;
-        // look for ascending
-        if report[0] < report[1] {
-            for rec in report.iter().skip(1) {
-                if prev >= *rec || *rec - prev > 3 {
-                    count = 0;
-                    break;
-                }
-                prev = *rec;
-            }
-            valid += count;
+        // filter elements in report according to is_valid()
+        if is_valid(&report) {
+            valid += 1;
         }
-        // look for decending order
-        else if report[0] > report[1] {
-            for rec in report.iter().skip(1) {
-                if prev <= *rec || prev - *rec > 3 {
-                    count = 0;
-                    break;
-                }
-                prev = *rec;
-            }
-            valid += count;
-        }
-        // skip if elements are equal
     }
     Some(valid)
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let mut valid = 0;
+    for line in input.lines() {
+        let report: Vec<u32> = line
+            .split_whitespace()
+            .map(|x| x.parse().unwrap())
+            .collect();
+
+        let mut any_valid = false;
+        for i in 0..report.len() {
+            let mut report_drop = report.clone();
+            report_drop.remove(i);
+            if is_valid(&report_drop) {
+                any_valid = true;
+                break;
+            }
+        }
+        if any_valid {
+            valid += 1;
+        }
+    }
+    Some(valid)
 }
 
 #[cfg(test)]
@@ -58,6 +82,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(4));
     }
 }
