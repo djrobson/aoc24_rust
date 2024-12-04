@@ -58,7 +58,32 @@ pub fn part_one(input: &str) -> Option<u32> {
 }
 
 pub fn part_two(input: &str) -> Option<u32> {
-    None
+    let grid = get_vec_from_input(input);
+    let max_col = grid[0].len();
+    let max_row = grid.len();
+    let word: &[u8] = "MAS".as_bytes();
+    let mut count = 0;
+
+    // for all the starting points that have diagonal neighbors
+    for row in 1..max_row - 1 {
+        for col in 1..max_col - 1 {
+            // if the starting point is the first letter of the word
+            if grid[row][col] == word[1] {
+                // check top left and bottom right
+                if (grid[row - 1][col - 1] == word[0] && grid[row + 1][col + 1] == word[2])
+                    || (grid[row - 1][col - 1] == word[2] && grid[row + 1][col + 1] == word[0])
+                {
+                    // check top right and bottom left
+                    if (grid[row - 1][col + 1] == word[0] && grid[row + 1][col - 1] == word[2])
+                        || (grid[row - 1][col + 1] == word[2] && grid[row + 1][col - 1] == word[0])
+                    {
+                        count += 1;
+                    }
+                }
+            }
+        }
+    }
+    Some(count)
 }
 
 #[cfg(test)]
@@ -83,8 +108,27 @@ XMAS.S
     }
 
     #[test]
+    fn test_part_two_small() {
+        let input = "M.S
+.A.
+M.S";
+        let result = part_two(&input);
+        assert_eq!(result, Some(1));
+    }
+
+    #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let input = ".M.S......
+..A..MSMS.
+.M.S.MAA..
+..A.ASMSM.
+.M.S.M....
+..........
+S.S.S.S.S.
+.A.A.A.A..
+M.M.M.M.M.
+..........";
+        let result = part_two(input);
+        assert_eq!(result, Some(9));
     }
 }
