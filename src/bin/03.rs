@@ -1,5 +1,5 @@
 advent_of_code::solution!(3);
-use itertools::{multipeek, Itertools};
+use itertools::Itertools;
 
 pub fn part_one(input: &str) -> Option<u32> {
     // parse all lines of input]
@@ -93,10 +93,10 @@ pub fn part_two(input: &str) -> Option<u32> {
     for (offset, value) in multiplies {
         // skip if the current offset is within the current exclude range
         if offset > cur_excl_range.0 && offset < cur_excl_range.1 {
-            println!(
+            /*println!(
                 "skipping offset: {} because {} {}",
                 offset, cur_excl_range.0, cur_excl_range.1
-            );
+            );*/
             continue;
         }
 
@@ -115,16 +115,16 @@ pub fn part_two(input: &str) -> Option<u32> {
         }
 
         if offset < cur_excl_range.0 || offset > cur_excl_range.1 {
-            println!(
+            /*println!(
                 "including offset: {}, exclude start: {}, end: {}, value: {}",
                 offset, cur_excl_range.0, cur_excl_range.1, value
-            );
+            );*/
             sum += value;
         } else {
-            println!(
+            /*println!(
                 "excluding offset: {}, exclude start: {}, end: {}, value: {}",
                 offset, cur_excl_range.0, cur_excl_range.1, value
-            );
+            );*/
         }
     }
     Some(sum)
