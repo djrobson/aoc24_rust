@@ -30,20 +30,26 @@ impl fmt::Display for Block {
     }
 }
 
-fn get_checksum(blocks: &Vec<Block>) -> u32 {
-    blocks.iter().fold(0, |acc, block| match block {
-        Block::F(f) => {
-            let mut new_sum = 0;
-            for i in f.file_index..f.file_index + f.size {
-                new_sum += i * f.file_index
+fn get_checksum(blocks: &Vec<Block>) -> u64 {
+    let mut acc = 0;
+    let mut index = 0;
+    for block in blocks.iter() {
+        match block {
+            Block::F(f) => {
+                let mut new_sum = 0;
+                for i in index..index + f.size + 1 {
+                    new_sum += i as u64 * f.file_index as u64;
+                }
+                index += f.size;
+                acc += new_sum;
             }
-            acc + new_sum
+            Block::E(_) => break,
         }
-        Block::E(_) => acc,
-    })
+    }
+    acc
 }
 
-pub fn part_one(input: &str) -> Option<u32> {
+pub fn part_one(input: &str) -> Option<u64> {
     // parse the input into an alternating sequence of file and empty blocks
     let mut original_blocks: Vec<Block> = Vec::new();
     let mut is_file = true;
