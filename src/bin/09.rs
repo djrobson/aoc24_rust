@@ -37,7 +37,8 @@ fn get_checksum(blocks: &Vec<Block>) -> u64 {
         match block {
             Block::F(f) => {
                 let mut new_sum = 0;
-                for i in index..index + f.size + 1 {
+                for i in index..index + f.size {
+                    //println!("{} {}", i, f.file_index);
                     new_sum += i as u64 * f.file_index as u64;
                 }
                 index += f.size;
@@ -67,10 +68,10 @@ pub fn part_one(input: &str) -> Option<u64> {
         is_file = !is_file;
     }
 
-    for block in original_blocks.iter() {
+    /*for block in original_blocks.iter() {
         print!("{}", block);
     }
-    println!("");
+    println!("");*/
 
     let mut compact_blocks: Vec<Block> = Vec::new();
     let mut head_cursor = 0;
@@ -119,14 +120,16 @@ pub fn part_one(input: &str) -> Option<u64> {
             }
         }
         if head_cursor >= tail_cursor {
+            compact_blocks.push(original_blocks[tail_cursor]);
             break;
         }
     }
 
-    for block in compact_blocks.iter() {
+    /*for block in compact_blocks.iter() {
         print!("{}", block);
     }
     println!("");
+    */
 
     let checksum = get_checksum(&compact_blocks);
     Some(checksum)
