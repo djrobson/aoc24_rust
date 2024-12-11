@@ -135,11 +135,35 @@ pub fn part_one(input: &str) -> Option<u64> {
     Some(checksum)
 }
 
-#[derive(Debug, Copy, Clone)]
+#[allow(dead_code)]
+#[derive(Clone, Copy)]
 enum Block2 {
     F(File),
     E(Empty),
     D,
+}
+
+fn get_checksum2(blocks: &Vec<Block2>) -> u64 {
+    let mut acc = 0;
+    let mut index = 0;
+    for block in blocks.iter() {
+        match block {
+            Block2::F(f) => {
+                let mut new_sum = 0;
+                for i in index..index + f.size {
+                    //println!("{} {}", i, f.file_index);
+                    new_sum += i as u64 * f.file_index as u64;
+                }
+                index += f.size;
+                acc += new_sum;
+            }
+            Block2::E(_) => break,
+            Block2::D => {
+                todo!("implement the delted block");
+            }
+        }
+    }
+    acc
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
@@ -226,7 +250,7 @@ pub fn part_two(input: &str) -> Option<u64> {
     println!("");
     */
 
-    let checksum = get_checksum(&compact_blocks);
+    let checksum = get_checksum2(&compact_blocks);
     Some(checksum)
 }
 

@@ -1,6 +1,6 @@
 advent_of_code::solution!(10);
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq, Hash)]
 enum EnteredFrom {
@@ -11,6 +11,7 @@ enum EnteredFrom {
     Right,
 }
 
+#[allow(dead_code)]
 fn count_paths(
     grid: &Vec<Vec<u8>>,
     prev_value: u8,
@@ -73,6 +74,62 @@ fn count_paths(
     count
 }
 
+fn count_destinations(
+    grid: &Vec<Vec<u8>>,
+    prev_value: u8,
+    x: i32,
+    y: i32,
+    entered_from: EnteredFrom,
+    destinations: &mut HashSet<(i32, i32)>,
+) -> () {
+    if x < 0 || y < 0 || x >= grid[0].len() as i32 || y >= grid.len() as i32 {
+        // off the side of the grid
+        return;
+    }
+    let my_value = grid[y as usize][x as usize];
+    if my_value == b'0' && entered_from != EnteredFrom::Head {
+        // found a trail head, but not the first one
+        return;
+    }
+    if (entered_from != EnteredFrom::Head) && (my_value != prev_value + 1) {
+        // not the next number in the sequence
+        return;
+    }
+    if grid[y as usize][x as usize] == b'9' {
+        destinations.insert((x, y));
+        return;
+    }
+
+    match entered_from {
+        EnteredFrom::Head => {
+            count_destinations(grid, my_value, x, y - 1, EnteredFrom::Top, destinations);
+            count_destinations(grid, my_value, x, y + 1, EnteredFrom::Bottom, destinations);
+            count_destinations(grid, my_value, x - 1, y, EnteredFrom::Left, destinations);
+            count_destinations(grid, my_value, x + 1, y, EnteredFrom::Right, destinations)
+        }
+        EnteredFrom::Top => {
+            count_destinations(grid, my_value, x, y - 1, EnteredFrom::Top, destinations);
+            count_destinations(grid, my_value, x - 1, y, EnteredFrom::Left, destinations);
+            count_destinations(grid, my_value, x + 1, y, EnteredFrom::Right, destinations);
+        }
+        EnteredFrom::Bottom => {
+            count_destinations(grid, my_value, x, y + 1, EnteredFrom::Bottom, destinations);
+            count_destinations(grid, my_value, x - 1, y, EnteredFrom::Left, destinations);
+            count_destinations(grid, my_value, x + 1, y, EnteredFrom::Right, destinations);
+        }
+        EnteredFrom::Left => {
+            count_destinations(grid, my_value, x - 1, y, EnteredFrom::Left, destinations);
+            count_destinations(grid, my_value, x, y - 1, EnteredFrom::Top, destinations);
+            count_destinations(grid, my_value, x, y + 1, EnteredFrom::Bottom, destinations);
+        }
+        EnteredFrom::Right => {
+            count_destinations(grid, my_value, x + 1, y, EnteredFrom::Right, destinations);
+            count_destinations(grid, my_value, x, y - 1, EnteredFrom::Top, destinations);
+            count_destinations(grid, my_value, x, y + 1, EnteredFrom::Bottom, destinations);
+        }
+    };
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
     // read input into a Vec of Vec of u8
     let grid: Vec<Vec<u8>> = input.lines().map(|line| line.bytes().collect()).collect();
@@ -90,22 +147,28 @@ pub fn part_one(input: &str) -> Option<u32> {
         })
         .collect();
 
-    let mut total_paths = 0;
-    let mut cache = HashMap::new();
+    let mut total_destinations = 0;
     for trail_head in trail_heads {
-        total_paths += count_paths(
+        let mut trail_destinations: HashSet<(i32, i32)> = HashSet::new();
+        count_destinations(
             &grid,
             b'0',
             trail_head.0,
             trail_head.1,
             EnteredFrom::Head,
-            &mut cache,
+            &mut trail_destinations,
         );
+        /*println!(
+            "starting at {:?}, destinations: {:?}",
+            trail_head,
+            trail_destinations.len()
+        );*/
+        total_destinations += trail_destinations.len() as u32;
     }
-    Some(total_paths)
+    Some(total_destinations)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+pub fn part_two(_input: &str) -> Option<u32> {
     None
 }
 
@@ -136,12 +199,12 @@ mod tests {
     fn test_part_one_4() {
         let result = part_one(
             "..90..9
-            ...1.98
-            ...2..7
-            6543456
-            765.987
-            876....
-            987....",
+...1.98
+...2..7
+6543456
+765.987
+876....
+987....",
         );
         assert_eq!(result, Some(4));
     }
