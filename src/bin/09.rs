@@ -1,5 +1,4 @@
 advent_of_code::solution!(9);
-use itertools::Itertools;
 use std::fmt;
 
 #[derive(Debug, Copy, Clone)]
@@ -141,14 +140,16 @@ struct FileSpan {
     file_index: u32,
     trailing_files: Vec<File>,
     trailing_space: u32,
+    leading_space: u32,
 }
 
 impl fmt::Display for FileSpan {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        let f_str = (self.file_index % 10).to_string();
+        let mut f_str = (self.file_index % 10).to_string();
         write!(f, "{}", f_str.repeat(self.size as usize))?;
+        write!(f, "{}", ".".repeat(self.leading_space as usize))?;
         for trailing_file in self.trailing_files.iter() {
-            let f_str = (trailing_file.file_index % 10).to_string();
+            f_str = (trailing_file.file_index % 10).to_string();
             write!(f, "{}", f_str.repeat(trailing_file.size as usize))?;
         }
         write!(f, "{}", ".".repeat(self.trailing_space as usize))
@@ -169,6 +170,7 @@ fn get_checksum2(blocks: &Vec<FileSpan>) -> u64 {
     for block in blocks.iter() {
         acc += get_checksum_from_file(offset, block.file_index, block.size);
         offset += block.size;
+        offset += block.leading_space;
         for trailing_file in block.trailing_files.iter() {
             acc += get_checksum_from_file(offset, trailing_file.file_index, trailing_file.size);
             offset += trailing_file.size;
@@ -184,6 +186,7 @@ fn get_checksum2(blocks: &Vec<FileSpan>) -> u64 {
     }
     println!("");
 }*/
+#[allow(dead_code)]
 fn print_spans(spans: &Vec<FileSpan>) {
     for span in spans.iter() {
         print!("{}", span);
@@ -207,6 +210,7 @@ pub fn part_two(input: &str) -> Option<u64> {
             file_index,
             trailing_files: Vec::new(),
             trailing_space: esize,
+            leading_space: 0,
         });
         file_index += 1;
     }
@@ -219,10 +223,10 @@ pub fn part_two(input: &str) -> Option<u64> {
         // look for the first block, with index lower than tail, with enough empty space
         for head_index in 0..tail_cursor {
             if original_blocks[head_index].trailing_space >= original_blocks[tail_cursor].size {
-                println!(
+                /*println!(
                     "moving tail: {} to be after head {}",
                     original_blocks[tail_cursor].file_index, original_blocks[head_index].file_index
-                );
+                );*/
                 // append the tail block to the trailing files of the front block
                 let moved_file_index = original_blocks[tail_cursor].file_index;
                 let moved_file_size = original_blocks[tail_cursor].size;
@@ -234,17 +238,17 @@ pub fn part_two(input: &str) -> Option<u64> {
                 original_blocks[head_index].trailing_space -= original_blocks[tail_cursor].size;
 
                 // clear out the tail block
-                original_blocks[tail_cursor].trailing_space += original_blocks[tail_cursor].size;
+                original_blocks[tail_cursor].leading_space += original_blocks[tail_cursor].size;
                 original_blocks[tail_cursor].size = 0;
 
-                print_spans(&original_blocks);
+                //print_spans(&original_blocks);
                 break;
             }
         }
         tail_cursor -= 1;
     }
 
-    print_spans(&original_blocks);
+    //print_spans(&original_blocks);
 
     let checksum = get_checksum2(&original_blocks);
     Some(checksum)
