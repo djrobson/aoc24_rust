@@ -168,8 +168,41 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(total_destinations)
 }
 
-pub fn part_two(_input: &str) -> Option<u32> {
-    None
+pub fn part_two(input: &str) -> Option<u32> {
+    // read input into a Vec of Vec of u8
+    let grid: Vec<Vec<u8>> = input.lines().map(|line| line.bytes().collect()).collect();
+    let trail_heads: Vec<(i32, i32)> = grid
+        .iter()
+        .enumerate()
+        .flat_map(|(y, row)| {
+            row.iter().enumerate().filter_map(move |(x, &cell)| {
+                if cell == b'0' {
+                    Some((x as i32, y as i32))
+                } else {
+                    None
+                }
+            })
+        })
+        .collect();
+
+    let mut total_paths = 0;
+    for trail_head in trail_heads {
+        let mut cache: HashMap<(i32, i32, EnteredFrom), u32> = HashMap::new();
+        total_paths += count_paths(
+            &grid,
+            b'0',
+            trail_head.0,
+            trail_head.1,
+            EnteredFrom::Head,
+            &mut cache,
+        );
+        /*println!(
+            "starting at {:?}, destinations: {:?}",
+            trail_head,
+            trail_destinations.len()
+        );*/
+    }
+    Some(total_paths)
 }
 
 #[cfg(test)]
@@ -225,6 +258,6 @@ mod tests {
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(81));
     }
 }
