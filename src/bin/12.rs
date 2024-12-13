@@ -250,14 +250,9 @@ pub fn part_two(input: &str) -> Option<usize> {
         let regions = regions_by_label.get(key).unwrap();
         for region in regions {
             let mut region_sides: HashMap<SideType, Vec<HashSet<(i32, i32)>>> = HashMap::new();
-            // println!( "Label: {}, Squares: {}", region.label as char, region.squares.len());
             let sorted_squares = sorted_squares_from_region(region);
             for (x, y) in sorted_squares.iter() {
                 let my_sides = get_sides_for_square(*x, *y, &grid, &side_directions);
-                /*println!(
-                    "sides for {}: ({},{}) {:?}",
-                    region.label as char, x, y, my_sides
-                );*/
 
                 for side in my_sides {
                     // check if my neighbor has the same side
@@ -270,11 +265,6 @@ pub fn part_two(input: &str) -> Option<usize> {
                         let neighbor_sides =
                             get_sides_for_square(neighbor_x, neighbor_y, &grid, &side_directions);
 
-                        /*println!(
-                            "sides for neighbor {}: ({},{}) {:?}",
-                            region.label as char, neighbor_x, neighbor_y, neighbor_sides
-                        );*/
-
                         if neighbor_sides.contains(&side) {
                             // neighbor should have already made a side, find it and merge with it
                             if let Some(sides_for_dir) = region_sides.get_mut(&side) {
@@ -283,10 +273,6 @@ pub fn part_two(input: &str) -> Option<usize> {
                                 for some_side in sides_for_dir.iter_mut() {
                                     if some_side.contains(&(neighbor_x, neighbor_y)) {
                                         some_side.insert((*x, *y));
-                                        /*println!(
-                                            "found the side in the list ({},{})  -> ({},{}) {}",
-                                            x, y, neighbor_x, neighbor_y, region.label as char
-                                        );*/
                                         found = true;
                                         break;
                                     }
@@ -299,34 +285,18 @@ pub fn part_two(input: &str) -> Option<usize> {
                             }
                         } else {
                             // our neighbor didn't have a continuous side, add our side to the region sides
-                            /*println!(
-                                "neighbor didn't have a continuous side ({},{})  -> ({},{}) {}",
-                                x, y, neighbor_x, neighbor_y, region.label as char
-                            );*/
                             add_new_side_to_list(&mut region_sides, side, x, y);
                         }
                     } else {
                         // our neighbor wasn't in our region, add our side to the region sides
-                        /*println!(
-                            "neighbor wasn't in our region ({},{})  -> ({},{}) {}",
-                            x, y, neighbor_x, neighbor_y, region.label as char
-                        );*/
                         add_new_side_to_list(&mut region_sides, side, x, y);
                     }
                 }
             }
             for side_type in region_sides.keys() {
                 let sides_of_type = region_sides.get(side_type).unwrap();
-                /*println!(
-                    "region with label {} and area {} had {} sides of type {:?}",
-                    region.label as char,
-                    region.squares.len(),
-                    sides_of_type.len(),
-                    side_type
-                );*/
                 fence_cost += region.squares.len() * sides_of_type.len();
             }
-            //todo!("why are sides missing from regions?")
         }
     }
 

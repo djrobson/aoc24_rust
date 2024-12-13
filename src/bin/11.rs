@@ -38,6 +38,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(output_len as u32)
 }
 
+#[allow(dead_code)]
 fn build_list_from_seed(seed: usize, depth: usize) -> Vec<usize> {
     let mut this_input = vec![seed];
     for _ in 0..depth {
