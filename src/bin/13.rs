@@ -101,48 +101,26 @@ pub fn part_one(input: &str) -> Option<i64> {
     Some(total_cost)
 }
 
-fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
-    if b == 0 {
-        (a, 1, 0)
-    } else {
-        let (g, x, y) = extended_gcd(b, a % b);
-        (g, y, x - (a / b) * y)
-    }
+fn determinant(matrix: [[i64; 2]; 2]) -> i64 {
+    matrix[0][0] * matrix[1][1] - matrix[0][1] * matrix[1][0]
 }
 
-fn solve_diophantine(machine: &MachineDetails) -> Option<Vec<i64>> {
-    // Solve the first equation for A
-    // A = (machine.prize_x - B * machine.b_x) / machine.a_x
-    // Substitute into the second equation
-    // ((machine.prize_x - B * machine.b_x) / machine.a_x) * machine.b_x + B * machine.b_y = machine.prize_y
-    // Simplify to get a single-variable equation in terms of B
-    let a = machine.b_x * machine.b_x - machine.a_x * machine.b_y;
-    let b = machine.a_x * machine.prize_y - machine.b_x * machine.prize_x;
-    let c = machine.a_x * machine.b_y;
+fn solve_cramers_rule(a_x: i64, a_y: i64, b_x: i64, b_y: i64, prize_x: i64, prize_y: i64) -> Option<(i64, i64)> {
 
-    let (g, x, y) = extended_gcd(a, c);
-
-    if b % g != 0 {
-        return None; // No solution exists
+    let det = determinant([[a_x, b_x], [a_y, b_y]]);
+    if det == 0 {
+        return None;
     }
-
-    let b0 = x * (b / g);
-    let a0 = (machine.prize_x - b0 * machine.b_x) / machine.a_x;
-
-    // General solution: A = a0 + k * (c / g), B = b0 - k * (a / g)
-    let mut solutions = Vec::new();
-    let k_min = -500; // Arbitrary range for k
-    let k_max = 500; // Arbitrary range for k
-
-    for k in k_min..=k_max {
-        let a = a0 + k * (c / g);
-        let b = b0 - k * (a / g);
-        if a < 0 || b < 0 {
-            continue;
-        }
-        solutions.push(a * 3 + b);
+    let det_x = determinant([[prize_x, b_x], [prize_y, b_y]]);
+    let det_y = determinant([[a_x, prize_x], [a_y, prize_y]]);
+    if det_x % det == 0 && det_y % det == 0 {
+        return Some((det_x / det, det_y / det))
     }
-    Some(solutions)
+    None
+}
+
+fn solve_cramers_rule_by_machine_detail(machine: &MachineDetails) -> Option<(i64, i64)> {
+    solve_cramers_rule(machine.a_x, machine.a_y, machine.b_x, machine.b_y, machine.prize_x, machine.prize_y)
 }
 
 pub fn part_two(input: &str) -> Option<i64> {
@@ -150,18 +128,11 @@ pub fn part_two(input: &str) -> Option<i64> {
     let mut total_cost = 0;
 
     for machine in machines {
-        match solve_diophantine(&machine) {
-            Some(solutions) => {
-                let mut lowest_solution = i64::MAX;
-                for solution in &solutions {
-                    if lowest_solution > *solution {
-                        lowest_solution = *solution;
-                    }
-                }
-                //println!("Machine {:?} solutions: A: {}, B: {}", machine, a, b);
-                total_cost += lowest_solution;
-            }
-            None => println!("No solution found"),
+        if let Some(solution) = solve_cramers_rule_by_machine_detail(&machine){
+            //println!("Machine {:?} solutions: A: {}, B: {}", machine, a, b);
+            total_cost += solution.0 * 3 + solution.1;
+        } else {
+            //println!("No solutions found for {:?}", machine);
         }
     }
     Some(total_cost)
