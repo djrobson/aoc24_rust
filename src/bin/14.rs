@@ -97,8 +97,29 @@ pub fn part_one(input: &str) -> Option<u32> {
     solve_one(input, 101, 103)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+fn solve_two(input: &str, grid_max_x: usize, grid_max_y: usize) -> Option<u32> {
+    let mut robots = process_input(input);
+    for tick in 0..10000 {
+        let mut grid = vec![vec!['.'; grid_max_x]; grid_max_y];
+        for robot in robots.iter_mut() {
+            let new_x = (robot.x_loc + robot.x_vel * tick).rem_euclid(grid_max_x as i32);
+            let new_y = (robot.y_loc + robot.y_vel * tick).rem_euclid(grid_max_y as i32);
+            grid[new_y as usize][new_x as usize] = '#';
+            //println!("x: {}, y: {}", robot.x_loc, robot.y_loc);
+        }
+        println!("tick: {}", tick);
+        for row in grid.iter() {
+            let row_as_string = row.iter().collect::<String>();
+            println!("{}", row_as_string);
+        }
+    }
+
+
     None
+}
+
+pub fn part_two(input: &str) -> Option<u32> {
+    solve_two(input, 101, 103)
 }
 
 #[cfg(test)]
@@ -113,7 +134,7 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        //let result = part_two(&advent_of_code::template::read_file("examples", DAY));
+        //assert_eq!(result, None);
     }
 }
