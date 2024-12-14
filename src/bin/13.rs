@@ -2,15 +2,15 @@ advent_of_code::solution!(13);
 
 #[derive(Debug)]
 struct MachineDetails {
-    a_x: u32,
-    a_y: u32,
-    b_x: u32,
-    b_y: u32,
-    prize_x: u32,
-    prize_y: u32,
+    a_x: i64,
+    a_y: i64,
+    b_x: i64,
+    b_y: i64,
+    prize_x: i64,
+    prize_y: i64,
 }
 
-fn parse_input(input: &str) -> Vec<MachineDetails> {
+fn parse_input(input: &str, offset: i64) -> Vec<MachineDetails> {
     // parse input like this, repeat until you don't find a blank line after
     // Button A: X+94, Y+34
     // Button B: X+22, Y+67
@@ -21,12 +21,12 @@ fn parse_input(input: &str) -> Vec<MachineDetails> {
     let mut input_lines = input.lines();
     loop {
         let a = input_lines.next().unwrap();
-        let a_x = a[12..14].parse::<u32>().unwrap();
-        let a_y = a[18..20].parse::<u32>().unwrap();
+        let a_x = a[12..14].parse::<i64>().unwrap();
+        let a_y = a[18..20].parse::<i64>().unwrap();
 
         let b = input_lines.next().unwrap();
-        let b_x = b[12..14].parse::<u32>().unwrap();
-        let b_y = b[18..20].parse::<u32>().unwrap();
+        let b_x = b[12..14].parse::<i64>().unwrap();
+        let b_y = b[18..20].parse::<i64>().unwrap();
 
         let prize = input_lines.next().unwrap();
         // parse input like "Prize: X=18641, Y=10279" annd "Prize: X=7870, Y=6450"
@@ -34,11 +34,13 @@ fn parse_input(input: &str) -> Vec<MachineDetails> {
         let prize_x = prize.split("X=").collect::<Vec<&str>>()[1]
             .split(", ")
             .collect::<Vec<&str>>()[0]
-            .parse::<u32>()
-            .unwrap();
+            .parse::<i64>()
+            .unwrap()
+            + offset;
         let prize_y = prize.split("Y=").collect::<Vec<&str>>()[1]
-            .parse::<u32>()
-            .unwrap();
+            .parse::<i64>()
+            .unwrap()
+            + offset;
 
         let mut machine = MachineDetails {
             a_x,
@@ -59,8 +61,8 @@ fn parse_input(input: &str) -> Vec<MachineDetails> {
     machines
 }
 
-pub fn part_one(input: &str) -> Option<u32> {
-    let machines = parse_input(input);
+pub fn part_one(input: &str) -> Option<i64> {
+    let machines = parse_input(input, 0);
     let mut total_cost = 0;
 
     for machine in machines {
@@ -99,8 +101,70 @@ pub fn part_one(input: &str) -> Option<u32> {
     Some(total_cost)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+fn extended_gcd(a: i64, b: i64) -> (i64, i64, i64) {
+    if b == 0 {
+        (a, 1, 0)
+    } else {
+        let (g, x, y) = extended_gcd(b, a % b);
+        (g, y, x - (a / b) * y)
+    }
+}
+
+fn solve_diophantine(machine: &MachineDetails) -> Option<Vec<i64>> {
+    // Solve the first equation for A
+    // A = (machine.prize_x - B * machine.b_x) / machine.a_x
+    // Substitute into the second equation
+    // ((machine.prize_x - B * machine.b_x) / machine.a_x) * machine.b_x + B * machine.b_y = machine.prize_y
+    // Simplify to get a single-variable equation in terms of B
+    let a = machine.b_x * machine.b_x - machine.a_x * machine.b_y;
+    let b = machine.a_x * machine.prize_y - machine.b_x * machine.prize_x;
+    let c = machine.a_x * machine.b_y;
+
+    let (g, x, y) = extended_gcd(a, c);
+
+    if b % g != 0 {
+        return None; // No solution exists
+    }
+
+    let b0 = x * (b / g);
+    let a0 = (machine.prize_x - b0 * machine.b_x) / machine.a_x;
+
+    // General solution: A = a0 + k * (c / g), B = b0 - k * (a / g)
+    let mut solutions = Vec::new();
+    let k_min = -500; // Arbitrary range for k
+    let k_max = 500; // Arbitrary range for k
+
+    for k in k_min..=k_max {
+        let a = a0 + k * (c / g);
+        let b = b0 - k * (a / g);
+        if a < 0 || b < 0 {
+            continue;
+        }
+        solutions.push(a * 3 + b);
+    }
+    Some(solutions)
+}
+
+pub fn part_two(input: &str) -> Option<i64> {
+    let machines = parse_input(input, 10000000000000);
+    let mut total_cost = 0;
+
+    for machine in machines {
+        match solve_diophantine(&machine) {
+            Some(solutions) => {
+                let mut lowest_solution = i64::MAX;
+                for solution in &solutions {
+                    if lowest_solution > *solution {
+                        lowest_solution = *solution;
+                    }
+                }
+                //println!("Machine {:?} solutions: A: {}, B: {}", machine, a, b);
+                total_cost += lowest_solution;
+            }
+            None => println!("No solution found"),
+        }
+    }
+    Some(total_cost)
 }
 
 #[cfg(test)]
