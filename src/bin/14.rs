@@ -19,6 +19,20 @@ fn print_robots_on_grid(robots: &Vec<Robot>, grid_max_x: usize, grid_max_y: usiz
     }
 }
 
+fn print_robots_on_grid_from_hash(
+    robots: &HashSet<(i32, i32)>,
+    grid_max_x: usize,
+    grid_max_y: usize,
+) {
+    let mut grid = vec![vec!['.'; grid_max_x]; grid_max_y];
+    for robot in robots.iter() {
+        grid[robot.1 as usize][robot.0 as usize] = '#';
+    }
+    for row in grid.iter() {
+        println!("{}", row.iter().collect::<String>());
+    }
+}
+
 fn process_input(input: &str) -> Vec<Robot> {
     input
         .lines()
@@ -108,10 +122,13 @@ fn solve_two(input: &str, grid_max_x: usize, grid_max_y: usize) -> Option<u32> {
         for robot in robots.iter() {
             let new_x = (robot.x_loc + robot.x_vel * tick).rem_euclid(grid_max_x as i32);
             let new_y = (robot.y_loc + robot.y_vel * tick).rem_euclid(grid_max_y as i32);
+            if grid_locs.contains(&(new_x, new_y)) {
+                break;
+            }
             grid_locs.insert((new_x, new_y));
         }
         if grid_locs.len() == robots.len() {
-            print_robots_on_grid(&robots, grid_max_x, grid_max_y);
+            //print_robots_on_grid_from_hash(&grid_locs, grid_max_x, grid_max_y);
             return Some(tick as u32);
         }
 
