@@ -107,7 +107,12 @@ pub fn part_one(input: &str) -> Option<usize> {
     Some(best_path)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+pub fn part_two(input: &str) -> Option<usize> {
+    let maze = parse_input(input);
+    // find all paths of optimal length to the end, remember each step taken
+    let mut queue = std::collections::VecDeque::new();
+    queue.push_back((maze.start, Direction::East, 0));
+
     None
 }
 
@@ -145,8 +150,49 @@ mod tests {
     }
 
     #[test]
-    fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+    fn test_part_two_1() {
+        let result = part_two(
+            "###############
+#.......#....O#
+#.#.###.#.###O#
+#.....#.#...#O#
+#.###.#####.#O#
+#.#.#.......#O#
+#.#.#####.###O#
+#..OOOOOOOOO#O#
+###O#O#####O#O#
+#OOO#O....#O#O#
+#O#O#O###.#O#O#
+#OOOOO#...#O#O#
+#O###.#.#.#O#O#
+#O..#.....#OOO#
+###############",
+        );
+        //assert_eq!(result, Some(45));
+        assert!(result.is_none());
+    }
+    #[test]
+    fn test_part_two_2() {
+        let result = part_two(
+            "#################
+#...#...#...#..O#
+#.#.#.#.#.#.#.#O#
+#.#.#.#...#...#O#
+#.#.#.#.###.#.#O#
+#OOO#.#.#.....#O#
+#O#O#.#.#.#####O#
+#O#O..#.#.#OOOOO#
+#O#O#####.#O###O#
+#O#O#..OOOOO#OOO#
+#O#O###O#####O###
+#O#O#OOO#..OOO#.#
+#O#O#O#####O###.#
+#O#O#OOOOOOO..#.#
+#O#O#O#########.#
+#O#OOO..........#
+#################",
+        );
+        //assert_eq!(result, Some(64));
+        assert!(result.is_none());
     }
 }
