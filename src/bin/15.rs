@@ -18,7 +18,7 @@ struct GameData {
 }
 
 #[allow(dead_code)]
-fn print_grid(grid: &Vec<Vec<LocationType>>, robot_location: &(usize, usize)) {
+fn print_grid(grid: &[Vec<LocationType>], robot_location: &(usize, usize)) {
     for (y, row) in grid.iter().enumerate() {
         for (x, location) in row.iter().enumerate() {
             if (x, y) == *robot_location {
@@ -41,21 +41,32 @@ fn parse_input(input: &str) -> GameData {
     let mut boxes = Vec::new();
     let mut walls = Vec::new();
     let mut robot_location = (0, 0);
-    let grid_data: Vec<Vec<LocationType>> = input_parts[0].lines().enumerate().map(|(line_num, line)| {
-        line.chars().enumerate().map(|(char_num, c)| {
-            match c {
-                '#' => {walls.push((char_num, line_num));
-                    LocationType::Wall},
-                '.' => LocationType::Open,
-                'O' => {boxes.push((char_num,line_num));
-                    LocationType::Box},
-                '@' => {robot_location = (line_num,char_num);
-                    LocationType::Robot},
-                _ => panic!("Unknown location type: {}", c),
-            }
-        }).collect()
-    }).collect();
-    let mut directions:Vec<u8> = Vec::new();
+    let grid_data: Vec<Vec<LocationType>> = input_parts[0]
+        .lines()
+        .enumerate()
+        .map(|(line_num, line)| {
+            line.chars()
+                .enumerate()
+                .map(|(char_num, c)| match c {
+                    '#' => {
+                        walls.push((char_num, line_num));
+                        LocationType::Wall
+                    }
+                    '.' => LocationType::Open,
+                    'O' => {
+                        boxes.push((char_num, line_num));
+                        LocationType::Box
+                    }
+                    '@' => {
+                        robot_location = (line_num, char_num);
+                        LocationType::Robot
+                    }
+                    _ => panic!("Unknown location type: {}", c),
+                })
+                .collect()
+        })
+        .collect();
+    let mut directions: Vec<u8> = Vec::new();
     for dir_line in input_parts[1].lines() {
         for c in dir_line.chars() {
             directions.push(c as u8);
@@ -75,7 +86,7 @@ fn parse_input(input: &str) -> GameData {
 pub fn part_one(input: &str) -> Option<u32> {
     let mut game_data = parse_input(input);
     //print_grid(&game_data.grid, &game_data.robot_location);
-    game_data.grid[ game_data.robot_location.1][ game_data.robot_location.0] = LocationType::Open;
+    game_data.grid[game_data.robot_location.1][game_data.robot_location.0] = LocationType::Open;
 
     for next_move in game_data.directions {
         let (robot_x, robot_y) = game_data.robot_location;
@@ -92,7 +103,7 @@ pub fn part_one(input: &str) -> Option<u32> {
         match game_data.grid[next_y][next_x] {
             LocationType::Wall => {
                 // do nothing
-            },
+            }
             LocationType::Box => {
                 // start scanning over boxes in direction, if you hit an empty spot then swap the box into the empty spot
                 // if you find a wall before you find an empty spot then do nothing
@@ -103,11 +114,11 @@ pub fn part_one(input: &str) -> Option<u32> {
                         LocationType::Wall => {
                             // block the movement of the box
                             break;
-                        },
+                        }
                         LocationType::Box => {
                             next_box_x = next_box_x.checked_add_signed(vector_x).unwrap();
                             next_box_y = next_box_y.checked_add_signed(vector_y).unwrap();
-                        },
+                        }
                         LocationType::Open => {
                             // push the box to the end and make a new open spot for the robot
                             game_data.grid[next_y][next_x] = LocationType::Open;
@@ -121,11 +132,11 @@ pub fn part_one(input: &str) -> Option<u32> {
                         _ => panic!("Unknown location type"),
                     }
                 }
-            },
+            }
             LocationType::Open => {
                 // move the robot
                 game_data.robot_location = (next_x, next_y);
-            },
+            }
             _ => panic!("Unknown location type"),
         }
         //print_grid(&game_data.grid, &game_data.robot_location);
@@ -134,12 +145,11 @@ pub fn part_one(input: &str) -> Option<u32> {
     let mut gps_sum = 0;
     for y in 0..game_data.grid.len() {
         for x in 0..game_data.grid[y].len() {
-            match game_data.grid[y][x] {
-                LocationType::Box => gps_sum += y*100 +x,
-                _ => (),
+            if game_data.grid[y][x] == LocationType::Box {
+                gps_sum += y * 100 + x
             }
         }
-    };
+    }
 
     Some(gps_sum as u32)
 }
@@ -160,7 +170,8 @@ mod tests {
 
     #[test]
     fn test_part_one_2() {
-        let result = part_one("########
+        let result = part_one(
+            "########
 #..O.O.#
 ##@.O..#
 #...O..#
@@ -169,11 +180,10 @@ mod tests {
 #......#
 ########
 
-<^^>>>vv<v>>v<<");
+<^^>>>vv<v>>v<<",
+        );
         assert_eq!(result, Some(2028));
     }
-
-
 
     #[test]
     fn test_part_two() {

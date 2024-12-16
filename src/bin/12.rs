@@ -24,7 +24,7 @@ struct SideDirection {
 fn find_all_adjacent_squares(
     x: i32,
     y: i32,
-    grid: &Vec<Vec<((usize, usize), u8)>>,
+    grid: &[Vec<((usize, usize), u8)>],
     visited: &mut HashSet<(i32, i32)>,
     label: u8,
 ) -> HashSet<(i32, i32)> {
@@ -73,7 +73,7 @@ fn build_grid(input: &str) -> Vec<Vec<((usize, usize), u8)>> {
         .collect::<Vec<_>>()
 }
 
-fn build_regions_by_label(grid: &Vec<Vec<((usize, usize), u8)>>) -> HashMap<u8, Vec<Region>> {
+fn build_regions_by_label(grid: &[Vec<((usize, usize), u8)>]) -> HashMap<u8, Vec<Region>> {
     let mut regions_by_label: HashMap<u8, Vec<Region>> = HashMap::new();
 
     for row in grid.iter() {
@@ -96,17 +96,14 @@ fn build_regions_by_label(grid: &Vec<Vec<((usize, usize), u8)>>) -> HashMap<u8, 
                 let adjacent_squares = find_all_adjacent_squares(
                     *x as i32,
                     *y as i32,
-                    &grid,
+                    grid,
                     &mut HashSet::new(),
                     label,
                 );
-                regions_by_label
-                    .entry(label)
-                    .or_insert_with(Vec::new)
-                    .push(Region {
-                        label,
-                        squares: adjacent_squares,
-                    });
+                regions_by_label.entry(label).or_default().push(Region {
+                    label,
+                    squares: adjacent_squares,
+                });
             }
         }
     }
@@ -151,8 +148,8 @@ fn get_edge_neighbor_directions() -> HashMap<SideType, (i32, i32)> {
 fn get_sides_for_square(
     x: i32,
     y: i32,
-    grid: &Vec<Vec<((usize, usize), u8)>>,
-    side_directions: &Vec<SideDirection>,
+    grid: &[Vec<((usize, usize), u8)>],
+    side_directions: &[SideDirection],
 ) -> Vec<SideType> {
     side_directions
         .iter()
@@ -163,14 +160,14 @@ fn get_sides_for_square(
             if let Some(row) = grid.get(neighbor_y as usize) {
                 // middle of the grid
                 if let Some((_, neighbor_label)) = row.get(neighbor_x as usize) {
-                    return *neighbor_label != grid[y as usize][x as usize].1;
+                    *neighbor_label != grid[y as usize][x as usize].1
                 } else {
                     // left or right edge
-                    return true;
+                    true
                 }
             } else {
                 // bottom or top edge
-                return true;
+                true
             }
         })
         .map(|side_dir| side_dir.side_type)
@@ -185,10 +182,7 @@ fn add_new_side_to_list(
 ) {
     let mut new_side = HashSet::new();
     new_side.insert((*x, *y));
-    region_sides
-        .entry(side)
-        .or_insert_with(Vec::new)
-        .push(new_side);
+    region_sides.entry(side).or_default().push(new_side);
 }
 
 fn sorted_squares_from_region(region: &Region) -> Vec<(i32, i32)> {

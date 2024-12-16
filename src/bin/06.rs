@@ -23,6 +23,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     // find the '^' character's x,y location in the grid
     let mut x = 0;
     let mut y = 0;
+    #[allow(clippy::needless_range_loop)]
     for i in 0..max_y {
         for j in 0..max_x {
             if grid[i][j] == b'^' {
@@ -107,6 +108,7 @@ pub fn part_two(input: &str) -> Option<u32> {
     // find the '^' character's x,y location in the grid
     let mut x = 0;
     let mut y = 0;
+    #[allow(clippy::needless_range_loop)]
     for i in 0..max_y {
         for j in 0..max_x {
             if grid[i][j] == b'^' {

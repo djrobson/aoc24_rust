@@ -8,8 +8,8 @@ pub fn part_one(input: &str) -> Option<u32> {
     // return the sum
     let mut sum = 0;
     for line in input.lines() {
-        let mut iter = line.match_indices("mul(");
-        while let Some((offset, _)) = iter.next() {
+        let iter = line.match_indices("mul(");
+        for (offset, _) in iter {
             let start = offset + 4;
             let end = line[start..].find(')').unwrap();
             if let Some((a, b)) = line[start..start + end]
@@ -17,9 +17,8 @@ pub fn part_one(input: &str) -> Option<u32> {
                 .map(|x| x.parse::<u32>())
                 .collect_tuple()
             {
-                match (a, b) {
-                    (Ok(a), Ok(b)) => sum += a * b,
-                    _ => (),
+                if let (Ok(a), Ok(b)) = (a, b) {
+                    sum += a * b
                 }
             }
         }
@@ -30,8 +29,8 @@ pub fn part_one(input: &str) -> Option<u32> {
 fn get_mul_instructions(input: &str) -> Vec<(usize, u32)> {
     // collect all the valid mul(x,y) pairs and store them in a vector
     let mut multiplies: Vec<(usize, u32)> = Vec::new();
-    let mut iter = input.match_indices("mul(");
-    while let Some((offset, _)) = iter.next() {
+    let iter = input.match_indices("mul(");
+    for (offset, _) in iter {
         let start = offset + 4;
         let end = input[start..].find(')').unwrap(); // TODO: handle the case where ')' is not found
         let values = &input[start..start + end];

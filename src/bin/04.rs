@@ -31,6 +31,7 @@ pub fn part_one(input: &str) -> Option<u32> {
                 // for all the directions
                 for (dx, dy) in get_directions() {
                     let mut found = true;
+                    #[allow(clippy::needless_range_loop)]
                     for i in 1..word.len() {
                         let new_row = row as i32 + i as i32 * dx;
                         let new_col = col as i32 + i as i32 * dy;

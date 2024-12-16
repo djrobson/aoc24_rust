@@ -81,7 +81,7 @@ fn count_destinations(
     y: i32,
     entered_from: EnteredFrom,
     destinations: &mut HashSet<(i32, i32)>,
-) -> () {
+) {
     if x < 0 || y < 0 || x >= grid[0].len() as i32 || y >= grid.len() as i32 {
         // off the side of the grid
         return;

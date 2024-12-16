@@ -42,7 +42,7 @@ fn parse_input(input: &str, offset: i64) -> Vec<MachineDetails> {
             .unwrap()
             + offset;
 
-        let mut machine = MachineDetails {
+        let machine = MachineDetails {
             a_x,
             a_y,
             b_x,
@@ -90,7 +90,7 @@ pub fn part_one(input: &str) -> Option<i64> {
             }
         }
         // sort machine options by the first element of the tuple
-        if machine_options.len() > 0 {
+        if !machine_options.is_empty() {
             machine_options.sort_by(|a, b| a.0.cmp(&b.0));
             //println!("{:?} had cost {}", machine_options, machine_options[0].0);
             total_cost += machine_options[0].0;

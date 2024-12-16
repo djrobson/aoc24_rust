@@ -128,7 +128,7 @@ fn part_two_with_depth(input: &str, depth: usize) -> Option<usize> {
 
 pub fn part_two(input: &str) -> Option<usize> {
     let max_depth = 75;
-    return part_two_with_depth(input, max_depth);
+    part_two_with_depth(input, max_depth)
 }
 
 #[cfg(test)]

@@ -1,11 +1,12 @@
 advent_of_code::solution!(2);
 
-pub fn is_valid(report: &Vec<u32>) -> bool {
+pub fn is_valid(report: &[u32]) -> bool {
     if report.len() < 2 {
         return false;
     }
     let mut prev = report[0];
     // look for ascending
+    #[allow(clippy::comparison_chain)]
     if report[0] < report[1] {
         for rec in report.iter().skip(1) {
             if prev >= *rec || *rec - prev > 3 {

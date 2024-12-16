@@ -30,7 +30,7 @@ impl fmt::Display for Block {
     }
 }
 
-fn get_checksum(blocks: &Vec<Block>) -> u64 {
+fn get_checksum(blocks: &[Block]) -> u64 {
     let mut acc = 0;
     let mut index = 0;
     for block in blocks.iter() {
@@ -88,6 +88,7 @@ pub fn part_one(input: &str) -> Option<u64> {
                     tail_cursor -= 1;
                 }
                 if let Block::F(tail_file) = original_blocks[tail_cursor] {
+                    #[allow(clippy::comparison_chain)]
                     if tail_file.size == head_empty.size {
                         compact_blocks.push(Block::F(tail_file));
                         tail_cursor -= 1;
@@ -101,7 +102,7 @@ pub fn part_one(input: &str) -> Option<u64> {
                         });
                         tail_cursor -= 1;
                     } else {
-                        let mut smaller_tail_file = tail_file.clone();
+                        let mut smaller_tail_file = tail_file;
                         let size_left = tail_file.size - head_empty.size;
                         smaller_tail_file.size = head_empty.size;
                         compact_blocks.push(Block::F(File {
@@ -164,7 +165,7 @@ fn get_checksum_from_file(offset: u32, file_index: u32, file_size: u32) -> u64 {
     acc
 }
 
-fn get_checksum2(blocks: &Vec<FileSpan>) -> u64 {
+fn get_checksum2(blocks: &[FileSpan]) -> u64 {
     let mut acc = 0;
     let mut offset = 0;
     for block in blocks.iter() {
@@ -187,11 +188,11 @@ fn get_checksum2(blocks: &Vec<FileSpan>) -> u64 {
     println!("");
 }*/
 #[allow(dead_code)]
-fn print_spans(spans: &Vec<FileSpan>) {
+fn print_spans(spans: &[FileSpan]) {
     for span in spans.iter() {
         print!("{}", span);
     }
-    println!("");
+    println!();
 }
 
 pub fn part_two(input: &str) -> Option<u64> {
@@ -199,6 +200,8 @@ pub fn part_two(input: &str) -> Option<u64> {
     let mut original_blocks: Vec<FileSpan> = Vec::new();
     let mut file_index = 0;
     let input_bytes = input.bytes().collect::<Vec<u8>>();
+
+    #[allow(clippy::explicit_counter_loop)]
     for record in input_bytes.chunks(2) {
         let fsize = record[0] as u32 - '0' as u32;
         if fsize == 0 {

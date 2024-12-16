@@ -9,7 +9,9 @@ struct Robot {
     x_vel: i32,
     y_vel: i32,
 }
-fn print_robots_on_grid(robots: &Vec<Robot>, grid_max_x: usize, grid_max_y: usize) {
+
+#[allow(dead_code)]
+fn print_robots_on_grid(robots: &[Robot], grid_max_x: usize, grid_max_y: usize) {
     let mut grid = vec![vec!['.'; grid_max_x]; grid_max_y];
     for robot in robots.iter() {
         grid[robot.y_loc as usize][robot.x_loc as usize] = '#';
@@ -19,6 +21,7 @@ fn print_robots_on_grid(robots: &Vec<Robot>, grid_max_x: usize, grid_max_y: usiz
     }
 }
 
+#[allow(dead_code)]
 fn print_robots_on_grid_from_hash(
     robots: &HashSet<(i32, i32)>,
     grid_max_x: usize,
@@ -40,7 +43,7 @@ fn process_input(input: &str) -> Vec<Robot> {
             // split line like p=6,3 v=-1,-3
             let mut positions = line
                 .split(" ")
-                .nth(0)
+                .next()
                 .unwrap()
                 .split("=")
                 .nth(1)
