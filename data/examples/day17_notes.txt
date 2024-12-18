@@ -1,0 +1,37 @@
+2,4 Bst A   B = A mod 8
+1,3 Bxl 3   B = B xor 3
+7,5 Cdv B   C = A/(2^B)
+0,3 Adv 0   A = A/(2^0)
+1,5 Bxl 1   B = B xor 1
+4,4 Bxc A   B = B xor C
+5,5 Out B   Output B mod 8
+3,0 Jnz 0
+
+out ((((A mod 8) xor 2) xor (A/2^((A mod 8) xor 3))) mod 8)
+A >> 1
+
+2,4,1,3,7,5,0,3,1,5,4,4,5,5,3,0
+
+                0355445130573142
+        1011100111
+         9876543210
+
+000 xor 2 xor A/2(0) xor 3 mod 8 = 010 xor qqq xor 111 = 210 xor 101
+001 xor 2 xor A/2(1) xor 3 mod 8 = 011 xor pqq xor 111 = 321 xor 100
+010 xor 2 xor A/2(2) xor 3 mod 8 = 000 xor ppq xor 111 = 432 xor 111
+011 xor 2 xor A/2(3) xor 3 mod 8 = 001 xor ppp xor 111 = 543 xor 110
+100 xor 2 xor A/2(4) xor 3 mod 8 = 110 xor opp xor 111 = 654 xor 001
+101 xor 2 xor A/2(5) xor 3 mod 8 = 111 xor oop xor 111 = 765 xor 000
+110 xor 2 xor A/2(6) xor 3 mod 8 = 100 xor ooo xor 111 = 876 xor 011
+111 xor 2 xor A/2(7) xor 3 mod 8 = 101 xor noo xor 111 = 987 xor 010
+
+
+    bbb_ccc_ddd_eee_fff_ggg_hhh_iii_jjj_kkk_lll_mmm_nnn_ooo_ppp_qqq
+0   3   5   5   4   4   5   1   3   0   5   7   3   1   4   2
+111 011 000 000 001 100 000 100 110 011 000 010 010 110 001 101
+1110 1100 0000 0011 0000 0100 1100 1100 0010 0101 1000 1101
+E    A    0    3    0    4    a    a    2    5    8    B 
+
+2_441_500_400
+636_800_000_000
+1_539_200_000_000

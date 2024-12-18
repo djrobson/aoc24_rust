@@ -1,4 +1,5 @@
 use core::panic;
+use rayon::prelude::*;
 
 advent_of_code::solution!(17);
 
@@ -41,7 +42,7 @@ fn parse_inst(inst: usize) -> Inst {
     }
 }
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Clone)]
 struct MachineState {
     a: usize,
     b: usize,
@@ -166,6 +167,27 @@ fn run_machine(machine: &mut MachineState) {
     }
 }
 
+fn run_machine_2(a_reg: usize, output: &[u8]) -> bool {
+    let mut a_reg = a_reg;
+    let mut b_reg;
+    let mut c_reg;
+    let mut output_cursor = 0;
+
+    while a_reg != 0 {
+        b_reg = a_reg & 0b111;
+        b_reg ^= 3;
+        c_reg = a_reg >> b_reg;
+        a_reg = a_reg >> 1;
+        b_reg = b_reg ^ 1;
+        b_reg = b_reg ^ c_reg;
+        if output[output_cursor] != (b_reg & 0b111) as u8 {
+            return false;
+        }
+        output_cursor += 1;
+    }
+    output_cursor == 16
+}
+
 pub fn part_one(input: &str) -> Option<String> {
     let mut machine = parse_input(input);
     run_machine(&mut machine);
@@ -179,7 +201,35 @@ pub fn part_one(input: &str) -> Option<String> {
     )
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+pub fn part_two(input: &str) -> Option<usize> {
+    let area_size = std::thread::available_parallelism().unwrap().get() * 100_000_000;
+    //let area_size = std::thread::available_parallelism().unwrap().get() * 118000;
+    let output: &[u8; 16] = &[2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0];
+
+    for area in 0..((2 as usize).pow(59)) {
+        // get precise time
+        let start_time = std::time::Instant::now();
+        let area_start = area * area_size;
+        let area_end = (area + 1) * area_size;
+        print!("Trying area {}", area_start);
+        let result = (area_start..area_end)
+            .into_par_iter()
+            .find_first(|reg_a| run_machine_2(*reg_a, output));
+        if result.is_some() {
+            println!(
+                " found {} in {}",
+                result.unwrap(),
+                start_time.elapsed().as_secs_f32()
+            );
+            return result;
+        } else {
+            println!(
+                " failed: {} checks/sec",
+                (area_size as f32) / start_time.elapsed().as_secs_f32()
+            );
+        }
+    }
+
     None
 }
 
@@ -317,7 +367,28 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let result = part_two(
+            "Register A: 2024
+Register B: 0
+Register C: 0
+
+Program: 0,3,5,4,3,0",
+        );
+        println!("{:?}", result);
+        assert_eq!(result, Some(117440));
+    }
+    #[test]
+    fn test_part_two_1() {
+        let a_reg: usize = 0xea0304aa258b;
+        let machine = &mut MachineState {
+            a: a_reg,
+            b: 0,
+            c: 0,
+            pc: 0,
+            memory: vec![2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0],
+            output: vec![],
+        };
+        println!("a_reg: {}", a_reg);
+        assert!(run_machine_2(machine));
     }
 }
