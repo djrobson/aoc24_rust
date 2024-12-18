@@ -1,3 +1,5 @@
+use core::fmt;
+
 advent_of_code::solution!(18);
 
 fn print_grid(grid: &Vec<Vec<u32>>, start: &(u32, u32), end: &(u32, u32)) {
@@ -92,7 +94,70 @@ pub fn part_one(input: &str) -> Option<u32> {
     solve_one(71, 71, 1024, falling_sequence)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+fn solve_two(x_max: u32, y_max: u32, grid: &Vec<Vec<u32>>) -> Option<u32> {
+    let start = (0, 0);
+    let end = (x_max - 1, y_max - 1);
+
+    //print_grid(&grid, &start, &end);
+
+    // use djikstra to find a path from 0,0 to x,y
+    let mut visited = vec![vec![false; x_max as usize]; y_max as usize];
+    let mut distance = vec![vec![std::u32::MAX; x_max as usize]; y_max as usize];
+    let mut queue = std::collections::BinaryHeap::new();
+    queue.push(std::cmp::Reverse((0, start)));
+    distance[start.1 as usize][start.0 as usize] = 0;
+    while let Some(std::cmp::Reverse((dist, (x, y)))) = queue.pop() {
+        if visited[y as usize][x as usize] {
+            continue;
+        }
+        visited[y as usize][x as usize] = true;
+        if (x, y) == end {
+            return Some(dist);
+        }
+        for (dx, dy) in &[(0, 1), (1, 0), (0, -1), (-1, 0)] {
+            let nx = x as i32 + dx;
+            let ny = y as i32 + dy;
+            if nx >= 0 && nx < x_max as i32 && ny >= 0 && ny < y_max as i32 {
+                let nx = nx as usize;
+                let ny = ny as usize;
+                if !visited[ny][nx] {
+                    let new_dist = grid[ny][nx].saturating_add(dist);
+                    if new_dist < distance[ny][nx] {
+                        distance[ny][nx] = new_dist;
+                        queue.push(std::cmp::Reverse((new_dist, (nx as u32, ny as u32))));
+                    }
+                }
+            }
+        }
+    }
+
+    None
+}
+
+pub fn part_two(input: &str) -> Option<String> {
+    wrapped_two(input, 71, 71)
+}
+
+fn wrapped_two(input: &str, x_max: u32, y_max: u32) -> Option<String> {
+    let falling_sequence = input
+        .lines()
+        .map(|line| {
+            let mut parts = line.split(",");
+            (
+                parts.next().unwrap().parse::<u32>().unwrap(),
+                parts.next().unwrap().parse::<u32>().unwrap(),
+            )
+        })
+        .collect::<Vec<_>>();
+
+    let mut grid = vec![vec![1; x_max as usize]; y_max as usize];
+    for drop in falling_sequence.iter() {
+        grid[drop.1 as usize][drop.0 as usize] = u32::MAX;
+        if solve_two(x_max, x_max, &grid).is_none() {
+            //println!("{},{}", drop.0, drop.1);
+            return Some(format!("{},{}", drop.0, drop.1));
+        }
+    }
     None
 }
 
@@ -126,7 +191,7 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let result = wrapped_two(&advent_of_code::template::read_file("examples", DAY), 7, 7);
+        assert_eq!(result, Some("6,1".to_string()));
     }
 }
