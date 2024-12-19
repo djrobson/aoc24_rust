@@ -167,17 +167,15 @@ fn run_machine(machine: &mut MachineState) {
 }
 
 fn find(program: &[u8], answer: usize) -> Option<usize> {
-    if program.len() == 0 {
+    if program.is_empty() {
         return Some(answer);
     }
     for t in 0..8 {
-        let mut a_reg = (answer << 3) | t;
-        let mut b_reg;
-        let c_reg;
+        let a_reg = (answer << 3) | t;
 
-        b_reg = a_reg & 0b111;
+        let mut b_reg = a_reg & 0b111;
         b_reg ^= 0b11;
-        c_reg = a_reg >> b_reg;
+        let c_reg = a_reg >> b_reg;
         //a_reg >>= 3;
         b_reg ^= 0b101;
         b_reg ^= c_reg;
