@@ -1,5 +1,8 @@
 advent_of_code::solution!(19);
 
+//use rayon::prelude::*;
+use std::collections::HashMap;
+
 fn parse_input(input: &str) -> (Vec<&str>, Vec<&str>) {
     let top_bottom = input.split("\n\n").collect::<Vec<&str>>();
 
@@ -24,6 +27,27 @@ fn check_message(towels: &Vec<&str>, message: &str) -> bool {
     })
 }
 
+fn check_message2(towels: &Vec<&str>, message: &str, cache: &mut HashMap<String, usize>) -> usize {
+    if message.is_empty() {
+        return 1;
+    }
+    if cache.contains_key(message) {
+        return cache[message];
+    }
+    let count_for_message = towels
+        .iter()
+        .map(|towel| {
+            if message.starts_with(towel) {
+                check_message2(towels, &message[towel.len()..], cache)
+            } else {
+                0
+            }
+        })
+        .sum();
+    cache.insert(message.to_string(), count_for_message);
+    count_for_message
+}
+
 pub fn part_one(input: &str) -> Option<u32> {
     let (towels, messages) = parse_input(input);
 
@@ -39,8 +63,23 @@ pub fn part_one(input: &str) -> Option<u32> {
     }
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+pub fn part_two(input: &str) -> Option<usize> {
+    let (towels, messages) = parse_input(input);
+    let mut cache = HashMap::new();
+    let count: usize = messages
+        .iter()
+        .map(|message| {
+            let count = check_message2(&towels, message, &mut cache);
+            println!("{}: {}", message, count);
+            count
+        })
+        .sum();
+
+    if count > 0 {
+        Some(count)
+    } else {
+        None
+    }
 }
 
 #[cfg(test)]
@@ -74,6 +113,6 @@ ubwu",
     #[test]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        assert_eq!(result, Some(16));
     }
 }
