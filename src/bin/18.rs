@@ -1,8 +1,7 @@
-use core::fmt;
-
 advent_of_code::solution!(18);
 
-fn print_grid(grid: &Vec<Vec<u32>>, start: &(u32, u32), end: &(u32, u32)) {
+#[allow(dead_code)]
+fn print_grid(grid: &[Vec<u32>], start: &(u32, u32), end: &(u32, u32)) {
     for (y, row) in grid.iter().enumerate() {
         for (x, cell) in row.iter().enumerate() {
             if (x as u32, y as u32) == *start {
@@ -37,7 +36,7 @@ fn solve_one(
 
     // use djikstra to find a path from 0,0 to x,y
     let mut visited = vec![vec![false; x_max as usize]; y_max as usize];
-    let mut distance = vec![vec![std::u32::MAX; x_max as usize]; y_max as usize];
+    let mut distance = vec![vec![u32::MAX; x_max as usize]; y_max as usize];
     let mut queue = std::collections::BinaryHeap::new();
     queue.push(std::cmp::Reverse((0, start)));
     distance[start.1 as usize][start.0 as usize] = 0;
@@ -94,7 +93,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     solve_one(71, 71, 1024, falling_sequence)
 }
 
-fn solve_two(x_max: u32, y_max: u32, grid: &Vec<Vec<u32>>) -> Option<u32> {
+fn solve_two(x_max: u32, y_max: u32, grid: &[Vec<u32>]) -> Option<u32> {
     let start = (0, 0);
     let end = (x_max - 1, y_max - 1);
 
@@ -102,7 +101,7 @@ fn solve_two(x_max: u32, y_max: u32, grid: &Vec<Vec<u32>>) -> Option<u32> {
 
     // use djikstra to find a path from 0,0 to x,y
     let mut visited = vec![vec![false; x_max as usize]; y_max as usize];
-    let mut distance = vec![vec![std::u32::MAX; x_max as usize]; y_max as usize];
+    let mut distance = vec![vec![u32::MAX; x_max as usize]; y_max as usize];
     let mut queue = std::collections::BinaryHeap::new();
     queue.push(std::cmp::Reverse((0, start)));
     distance[start.1 as usize][start.0 as usize] = 0;

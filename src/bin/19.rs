@@ -20,8 +20,8 @@ fn check_message(towels: &Vec<&str>, message: &str) -> bool {
         return true;
     }
     towels.iter().any(|towel| {
-        if message.starts_with(towel) {
-            return check_message(towels, &message[towel.len()..]);
+        if let Some(suffix) = message.strip_prefix(towel) {
+            return check_message(towels, suffix);
         }
         false
     })
@@ -37,8 +37,8 @@ fn check_message2(towels: &Vec<&str>, message: &str, cache: &mut HashMap<String,
     let count_for_message = towels
         .iter()
         .map(|towel| {
-            if message.starts_with(towel) {
-                check_message2(towels, &message[towel.len()..], cache)
+            if let Some(suffix) = message.strip_prefix(towel) {
+                check_message2(towels, suffix, cache)
             } else {
                 0
             }

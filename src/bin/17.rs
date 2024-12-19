@@ -126,7 +126,7 @@ fn run_machine(machine: &mut MachineState) {
         let operand = machine.memory[machine.pc + 1];
         match inst {
             0 => {
-                machine.a /= (2 as usize).pow(get_combo_value(operand, machine) as u32);
+                machine.a /= (2_usize).pow(get_combo_value(operand, machine) as u32);
                 machine.pc += 2;
             }
             1 => {
@@ -153,11 +153,11 @@ fn run_machine(machine: &mut MachineState) {
                 machine.pc += 2;
             }
             6 => {
-                machine.b = machine.a / (2 as usize).pow(get_combo_value(operand, machine) as u32);
+                machine.b = machine.a / (2_usize).pow(get_combo_value(operand, machine) as u32);
                 machine.pc += 2;
             }
             7 => {
-                machine.c = machine.a / (2 as usize).pow(get_combo_value(operand, machine) as u32);
+                machine.c = machine.a / (2_usize).pow(get_combo_value(operand, machine) as u32);
                 machine.pc += 2;
             }
             _ => {
@@ -177,9 +177,9 @@ fn run_machine_2(a_reg: usize, output: &[u8]) -> bool {
         b_reg = a_reg & 0b111;
         b_reg ^= 3;
         c_reg = a_reg >> b_reg;
-        a_reg = a_reg >> 1;
-        b_reg = b_reg ^ 1;
-        b_reg = b_reg ^ c_reg;
+        a_reg >>= 1;
+        b_reg ^= 1;
+        b_reg ^= c_reg;
         if output[output_cursor] != (b_reg & 0b111) as u8 {
             return false;
         }
@@ -201,12 +201,12 @@ pub fn part_one(input: &str) -> Option<String> {
     )
 }
 
-pub fn part_two(input: &str) -> Option<usize> {
+pub fn part_two(_input: &str) -> Option<usize> {
     let area_size = std::thread::available_parallelism().unwrap().get() * 100_000_000;
     //let area_size = std::thread::available_parallelism().unwrap().get() * 118000;
     let output: &[u8; 16] = &[2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0];
 
-    for area in 0..((2 as usize).pow(59)) {
+    for area in 0..((2_usize).pow(59)) {
         // get precise time
         let start_time = std::time::Instant::now();
         let area_start = area * area_size;
