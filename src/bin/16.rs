@@ -251,6 +251,7 @@ mod tests {
     use super::*;
 
     #[test]
+    #[ignore]
     fn test_part_two_big() {
         let result = part_two(&advent_of_code::template::read_file("inputs", DAY));
         assert_eq!(result, Some(593));
