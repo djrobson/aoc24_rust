@@ -1,5 +1,4 @@
 use core::panic;
-use rayon::prelude::*;
 
 advent_of_code::solution!(17);
 
@@ -167,25 +166,30 @@ fn run_machine(machine: &mut MachineState) {
     }
 }
 
-fn run_machine_2(a_reg: usize, output: &[u8]) -> bool {
-    let mut a_reg = a_reg;
-    let mut b_reg;
-    let mut c_reg;
-    let mut output_cursor = 0;
-
-    while a_reg != 0 {
-        b_reg = a_reg & 0b111;
-        b_reg ^= 3;
-        c_reg = a_reg >> b_reg;
-        a_reg >>= 1;
-        b_reg ^= 1;
-        b_reg ^= c_reg;
-        if output[output_cursor] != (b_reg & 0b111) as u8 {
-            return false;
-        }
-        output_cursor += 1;
+fn find(program: &[u8], answer: usize) -> Option<usize> {
+    if program.len() == 0 {
+        return Some(answer);
     }
-    output_cursor == 16
+    for t in 0..8 {
+        let mut a_reg = (answer << 3) | t;
+        let mut b_reg;
+        let c_reg;
+
+        b_reg = a_reg & 0b111;
+        b_reg ^= 0b11;
+        c_reg = a_reg >> b_reg;
+        //a_reg >>= 3;
+        b_reg ^= 0b101;
+        b_reg ^= c_reg;
+        let last = program.last().unwrap();
+        //println!("{} {}=={} {}", a_reg, b_reg, last, c_reg);
+        if *last == (b_reg & 0b111) as u8 {
+            if let Some(sub) = find(&program[..program.len() - 1], a_reg) {
+                return Some(sub);
+            }
+        }
+    }
+    None
 }
 
 pub fn part_one(input: &str) -> Option<String> {
@@ -202,35 +206,10 @@ pub fn part_one(input: &str) -> Option<String> {
 }
 
 pub fn part_two(_input: &str) -> Option<usize> {
-    let area_size = std::thread::available_parallelism().unwrap().get() * 100_000_000;
     //let area_size = std::thread::available_parallelism().unwrap().get() * 118000;
     let output: &[u8; 16] = &[2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0];
 
-    for area in 0..((2_usize).pow(59)) {
-        // get precise time
-        let start_time = std::time::Instant::now();
-        let area_start = area * area_size;
-        let area_end = (area + 1) * area_size;
-        print!("Trying area {}", area_start);
-        let result = (area_start..area_end)
-            .into_par_iter()
-            .find_first(|reg_a| run_machine_2(*reg_a, output));
-        if result.is_some() {
-            println!(
-                " found {} in {}",
-                result.unwrap(),
-                start_time.elapsed().as_secs_f32()
-            );
-            return result;
-        } else {
-            println!(
-                " failed: {} checks/sec",
-                (area_size as f32) / start_time.elapsed().as_secs_f32()
-            );
-        }
-    }
-
-    None
+    find(output, 0)
 }
 
 #[cfg(test)]
@@ -379,14 +358,11 @@ Program: 0,3,5,4,3,0",
         assert_eq!(result, Some(117440));
     }
 
-    #[ignore]
     #[test]
     fn test_part_two_1() {
-        let a_reg: usize = 0xea0304aa258b;
-        println!("a_reg: {}", a_reg);
-        assert!(run_machine_2(
-            a_reg,
-            &[2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0]
-        ));
+        assert_eq!(
+            find(&[2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0], 0),
+            Some(236539226447469)
+        );
     }
 }
