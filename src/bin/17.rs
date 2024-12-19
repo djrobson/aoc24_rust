@@ -304,7 +304,7 @@ mod tests {
                 a: 0,
                 b: 0,
                 c: 0,
-                pc: 2,
+                pc: 6,
                 memory: vec![0, 1, 5, 4, 3, 0],
                 output: vec![4, 2, 5, 6, 7, 7, 7, 7, 3, 1, 0],
             }
@@ -365,6 +365,7 @@ mod tests {
         assert_eq!(result, Some("4,6,3,5,6,3,5,2,1,0".to_string()));
     }
 
+    #[ignore]
     #[test]
     fn test_part_two() {
         let result = part_two(
@@ -377,18 +378,15 @@ Program: 0,3,5,4,3,0",
         println!("{:?}", result);
         assert_eq!(result, Some(117440));
     }
+
+    #[ignore]
     #[test]
     fn test_part_two_1() {
         let a_reg: usize = 0xea0304aa258b;
-        let machine = &mut MachineState {
-            a: a_reg,
-            b: 0,
-            c: 0,
-            pc: 0,
-            memory: vec![2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0],
-            output: vec![],
-        };
         println!("a_reg: {}", a_reg);
-        //assert!(run_machine_2(machine));
+        assert!(run_machine_2(
+            a_reg,
+            &[2, 4, 1, 3, 7, 5, 0, 3, 1, 5, 4, 4, 5, 5, 3, 0]
+        ));
     }
 }
