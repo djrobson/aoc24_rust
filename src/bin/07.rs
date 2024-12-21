@@ -4,12 +4,12 @@ fn parse_input(input: &str) -> Vec<(usize, Vec<usize>)> {
     input
         .lines()
         .map(|line| {
-            let mut parts = line.split(":");
+            let mut parts = line.split(':');
             let total: usize = parts.next().unwrap().parse().unwrap();
             let operands = parts
                 .next()
                 .unwrap()
-                .split(" ")
+                .split(' ')
                 .skip(1) // Skip the first space
                 .map(|s| s.parse().unwrap())
                 .collect();

@@ -106,10 +106,10 @@ pub fn part_one_with_limit(input: &str, limit:usize) -> Option<usize> {
 
             let route_improvement = default_route - new_solve;
             //println!("Removing wall at {} {} made a route that is {} better at {}", x,y,default_route - new_solve, new_solve);
-            if better_routes.contains_key(&route_improvement) {
-                better_routes.get_mut(&route_improvement).unwrap().push((x,y));
+            if let std::collections::hash_map::Entry::Vacant(e) = better_routes.entry(route_improvement) {
+                e.insert(vec![(x,y)]);
             } else {
-                better_routes.insert(route_improvement, vec![(x,y)]);
+                better_routes.get_mut(&route_improvement).unwrap().push((x,y));
             }
             maze.maze[y][x] = b'#';
         }
@@ -130,7 +130,7 @@ fn get_list_of_nearby_spots(pos: (usize,usize), distance: i32, maze: &Maze) -> V
     let (x, y) = pos;
     for x_offset in -distance..=distance {
         for y_offset in -distance..=distance {
-            if (x_offset as i32).abs() + (y_offset as i32).abs() > distance as i32 {
+            if x_offset.abs() + y_offset.abs() > distance {
                 continue;
             }
             let new_x = x as i32 + x_offset;
@@ -164,33 +164,25 @@ pub fn part_two_ex(input: &str, shortcut_distance: i32, min_improvement: usize) 
         if steps > 10000 {
             panic!("Too many steps");
         }
-        if maze.maze[y - 1][x] != b'#' {
-            if !maze_steps_for_each_position.contains_key(&(x, y - 1)) {
-                cursor = (x, y - 1);
-                maze_steps_for_each_position.insert(cursor, steps);
-                continue;
-            }
+        if maze.maze[y - 1][x] != b'#' && !maze_steps_for_each_position.contains_key(&(x, y - 1)) {
+            cursor = (x, y - 1);
+            maze_steps_for_each_position.insert(cursor, steps);
+            continue;
         }
-        if maze.maze[y][x - 1] != b'#' {
-            if !maze_steps_for_each_position.contains_key(&(x - 1, y)) {
-                cursor = (x-1, y);
-                maze_steps_for_each_position.insert(cursor, steps);
-                continue;
-            }
+        if maze.maze[y][x - 1] != b'#' && !maze_steps_for_each_position.contains_key(&(x - 1, y)) {
+            cursor = (x-1, y);
+            maze_steps_for_each_position.insert(cursor, steps);
+            continue;
         }
-        if maze.maze[y][x + 1] != b'#' {
-            if !maze_steps_for_each_position.contains_key(&(x + 1, y)) {
-                cursor = (x+1, y);
-                maze_steps_for_each_position.insert(cursor, steps);
-                continue;
-            }
+        if maze.maze[y][x + 1] != b'#' && !maze_steps_for_each_position.contains_key(&(x + 1, y)) {
+            cursor = (x+1, y);
+            maze_steps_for_each_position.insert(cursor, steps);
+            continue;
         }
-        if maze.maze[y + 1][x] != b'#' {
-            if !maze_steps_for_each_position.contains_key(&(x, y + 1)) {
-                cursor = (x, y + 1);
-                maze_steps_for_each_position.insert(cursor, steps);
-                continue;
-            }
+        if maze.maze[y + 1][x] != b'#' && !maze_steps_for_each_position.contains_key(&(x, y + 1)) {
+            cursor = (x, y + 1);
+            maze_steps_for_each_position.insert(cursor, steps);
+            continue;
         }
     }
     route.push(cursor); // add the end
@@ -202,10 +194,10 @@ pub fn part_two_ex(input: &str, shortcut_distance: i32, min_improvement: usize) 
 
             // calculate the absolute value of the x,y offset from here to shortcut
             let steps_to_shortcut = maze_steps_for_each_position[shortcut];
-            let x_offset = (here.0 as i32 - shortcut.0 as i32).abs() as usize;
-            let y_offset = (here.1 as i32 - shortcut.1 as i32).abs() as usize;
+            let x_offset= (here.0 as i32 - shortcut.0 as i32).unsigned_abs() as usize;
+            let y_offset = (here.1 as i32 - shortcut.1 as i32).unsigned_abs() as usize;
             let steps_from_here_to_shortcut = x_offset + y_offset;
-            if steps_to_shortcut > (steps_to_here + steps_from_here_to_shortcut as usize) {
+            if steps_to_shortcut > (steps_to_here + steps_from_here_to_shortcut) {
                 // we can get to the shortcut faster than going to normal way
                 let steps_to_end_from_here = maze_steps_for_each_position[&maze.end] - steps_to_here;
                 let steps_to_end_from_shortcut = maze_steps_for_each_position[&maze.end] - steps_to_shortcut;

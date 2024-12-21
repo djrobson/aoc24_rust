@@ -22,7 +22,7 @@ fn parse_input1(input: &str) -> Rules {
     let rules = rules_and_orders.next().unwrap();
 
     for line in rules.lines() {
-        let mut parts = line.split("|");
+        let mut parts = line.split('|');
         let pre = parts.next().unwrap().parse().unwrap();
         let post = parts.next().unwrap().parse().unwrap();
         if let std::collections::hash_map::Entry::Vacant(e) = pre_rules.entry(post) {
@@ -41,7 +41,7 @@ fn parse_input1(input: &str) -> Rules {
         .next()
         .unwrap()
         .lines()
-        .map(|line| line.split(",").map(|num| num.parse().unwrap()).collect())
+        .map(|line| line.split(',').map(|num| num.parse().unwrap()).collect())
         .collect();
 
     //dbg!(&pre_rules);

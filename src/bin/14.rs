@@ -42,21 +42,21 @@ fn process_input(input: &str) -> Vec<Robot> {
         .map(|line| {
             // split line like p=6,3 v=-1,-3
             let mut positions = line
-                .split(" ")
+                .split(' ')
                 .next()
                 .unwrap()
-                .split("=")
+                .split('=')
                 .nth(1)
                 .unwrap()
-                .split(",");
+                .split(',');
             let mut velocities = line
-                .split(" ")
+                .split(' ')
                 .nth(1)
                 .unwrap()
-                .split("=")
+                .split('=')
                 .nth(1)
                 .unwrap()
-                .split(",");
+                .split(',');
             Robot {
                 x_loc: positions.next().unwrap().parse::<i32>().unwrap(),
                 y_loc: positions.next().unwrap().parse::<i32>().unwrap(),

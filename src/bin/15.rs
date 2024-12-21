@@ -247,10 +247,9 @@ pub fn part_two(input: &str) -> Option<u32> {
     );*/
     game_data.grid[game_data.robot_location_y][game_data.robot_location_x] = LocationType2::Open;
 
-    for (_move_count, next_move) in game_data.directions.iter().enumerate() {
+    for next_move in game_data.directions.iter() {
         let robot_x = game_data.robot_location_x;
         let robot_y = game_data.robot_location_y;
-        //println!("Move #{}: {}", move_count, *next_move as char);
         let (vector_x, vector_y) = match next_move {
             b'^' => (0, -1),
             b'v' => (0, 1),
@@ -387,13 +386,9 @@ pub fn part_two(input: &str) -> Option<u32> {
                     if !found_wall {
                         for box_to_move in boxes_to_move.iter().unique().rev() {
                             let (box_x, box_y) = box_to_move;
-                            if vector_y == -1 {
-                                game_data.grid[box_y.checked_add_signed(vector_y).unwrap()]
-                                    [*box_x] = game_data.grid[*box_y][*box_x];
-                            } else {
-                                game_data.grid[box_y.checked_add_signed(vector_y).unwrap()]
-                                    [*box_x] = game_data.grid[*box_y][*box_x];
-                            }
+                            game_data.grid[box_y.checked_add_signed(vector_y).unwrap()]
+                                [*box_x] = game_data.grid[*box_y][*box_x];
+
                             game_data.grid[*box_y][*box_x] = LocationType2::Open;
 
                             /*print_grid2(

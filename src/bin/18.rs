@@ -83,7 +83,7 @@ pub fn part_one(input: &str) -> Option<u32> {
     let falling_sequence = input
         .lines()
         .map(|line| {
-            let mut parts = line.split(",");
+            let mut parts = line.split(',');
             (
                 parts.next().unwrap().parse::<u32>().unwrap(),
                 parts.next().unwrap().parse::<u32>().unwrap(),
@@ -141,7 +141,7 @@ fn wrapped_two(input: &str, x_max: u32, y_max: u32) -> Option<String> {
     let falling_sequence = input
         .lines()
         .map(|line| {
-            let mut parts = line.split(",");
+            let mut parts = line.split(',');
             (
                 parts.next().unwrap().parse::<u32>().unwrap(),
                 parts.next().unwrap().parse::<u32>().unwrap(),
