@@ -122,8 +122,116 @@ pub fn part_one_with_limit(input: &str, limit:usize) -> Option<usize> {
     Some(better_count)
 }
 
-pub fn part_two(_input: &str) -> Option<u32> {
-    None
+fn get_list_of_nearby_spots(pos: (usize,usize), distance: i32, maze: &Maze) -> Vec<(usize,usize)> {
+    let max_x = maze.maze[0].len();
+    let max_y = maze.maze.len();
+    let mut spots = Vec::new();
+    // if spot is inside the maze, and == '.' and distance is less than distance
+    let (x, y) = pos;
+    for x_offset in -distance..=distance {
+        for y_offset in -distance..=distance {
+            if (x_offset as i32).abs() + (y_offset as i32).abs() > distance as i32 {
+                continue;
+            }
+            let new_x = x as i32 + x_offset;
+            let new_y = y as i32 + y_offset;
+            if new_x < 0 || new_x >= max_x as i32 || new_y < 0 || new_y >= max_y as i32 {
+                continue;
+            }
+            let new_x = new_x as usize;
+            let new_y = new_y as usize;
+            if maze.maze[new_y][new_x] == b'.' {
+                spots.push((new_x, new_y));
+            }
+        }
+    }
+    spots
+}
+pub fn part_two(input: &str) -> Option<u32> {
+    part_two_ex(input, 20, 100)
+}
+pub fn part_two_ex(input: &str, shortcut_distance: i32, min_improvement: usize) -> Option<u32> {
+    let maze = parse_input(input);
+    let mut maze_steps_for_each_position: HashMap<(usize,usize),usize> = HashMap::new();
+    let mut route = Vec::new();
+    let mut cursor = maze.start;
+    let mut steps = 0;
+    maze_steps_for_each_position.insert(cursor, steps);
+    while cursor != maze.end {
+        let (x, y) = cursor;
+        route.push(cursor);
+        steps +=1;
+        if steps > 10000 {
+            panic!("Too many steps");
+        }
+        if maze.maze[y - 1][x] != b'#' {
+            if !maze_steps_for_each_position.contains_key(&(x, y - 1)) {
+                cursor = (x, y - 1);
+                maze_steps_for_each_position.insert(cursor, steps);
+                continue;
+            }
+        }
+        if maze.maze[y][x - 1] != b'#' {
+            if !maze_steps_for_each_position.contains_key(&(x - 1, y)) {
+                cursor = (x-1, y);
+                maze_steps_for_each_position.insert(cursor, steps);
+                continue;
+            }
+        }
+        if maze.maze[y][x + 1] != b'#' {
+            if !maze_steps_for_each_position.contains_key(&(x + 1, y)) {
+                cursor = (x+1, y);
+                maze_steps_for_each_position.insert(cursor, steps);
+                continue;
+            }
+        }
+        if maze.maze[y + 1][x] != b'#' {
+            if !maze_steps_for_each_position.contains_key(&(x, y + 1)) {
+                cursor = (x, y + 1);
+                maze_steps_for_each_position.insert(cursor, steps);
+                continue;
+            }
+        }
+    }
+    route.push(cursor); // add the end
+
+    let mut shortcut_count: HashMap<usize, usize> = HashMap::new();
+    for here in route.iter() {
+        get_list_of_nearby_spots(*here, shortcut_distance, &maze).iter().for_each(|shortcut| {
+            let steps_to_here =  maze_steps_for_each_position[here];
+
+            // calculate the absolute value of the x,y offset from here to shortcut
+            let steps_to_shortcut = maze_steps_for_each_position[shortcut];
+            let x_offset = (here.0 as i32 - shortcut.0 as i32).abs() as usize;
+            let y_offset = (here.1 as i32 - shortcut.1 as i32).abs() as usize;
+            let steps_from_here_to_shortcut = x_offset + y_offset;
+            if steps_to_shortcut > (steps_to_here + steps_from_here_to_shortcut as usize) {
+                // we can get to the shortcut faster than going to normal way
+                let steps_to_end_from_here = maze_steps_for_each_position[&maze.end] - steps_to_here;
+                let steps_to_end_from_shortcut = maze_steps_for_each_position[&maze.end] - steps_to_shortcut;
+                let steps_to_end_via_shortcut = steps_from_here_to_shortcut + steps_to_end_from_shortcut;
+                let steps_saved = steps_to_end_from_here - steps_to_end_via_shortcut;
+                if shortcut_count.contains_key(&steps_saved) {
+                    shortcut_count.insert(steps_saved, shortcut_count[&steps_saved] + 1);
+                } else {
+                    shortcut_count.insert(steps_saved, 1);
+                }
+            }
+        });
+    }
+
+    let mut total_shortcuts = 0;
+    for key in shortcut_count.keys().sorted() {
+        if key >= &min_improvement {
+            total_shortcuts += shortcut_count[key];
+
+            println!("Found {} shortcuts that save {} steps", shortcut_count[key], key);
+        } else {
+            println!("Found {} shortcuts that save {} too few steps", shortcut_count[key], key);
+        }
+    }
+
+    Some(total_shortcuts as u32)
 }
 
 #[cfg(test)]
@@ -138,7 +246,13 @@ mod tests {
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let result = part_two_ex(&advent_of_code::template::read_file("examples", DAY), 6, 50);
+        assert_eq!(result, Some(46));
+    }
+    #[test]
+    #[ignore]
+    fn test_part_two_real() {
+        let result = part_two(&advent_of_code::template::read_file("inputs", DAY));
+        assert_eq!(result, Some(986082));
     }
 }
