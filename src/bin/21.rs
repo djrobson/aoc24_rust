@@ -329,9 +329,9 @@ mod tests {
          assert_eq!(result, Some("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A".len() * 29));
      }
      #[test]
-     fn test_part_one_988() {
-         let result = part_one("988A");
-         assert_eq!(result, Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 988));
+     fn test_part_one_980() {
+         let result = part_one("980A");
+         assert_eq!(result, Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 980));
      }
      #[test]
      fn test_part_one_179() {
