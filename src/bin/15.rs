@@ -386,8 +386,8 @@ pub fn part_two(input: &str) -> Option<u32> {
                     if !found_wall {
                         for box_to_move in boxes_to_move.iter().unique().rev() {
                             let (box_x, box_y) = box_to_move;
-                            game_data.grid[box_y.checked_add_signed(vector_y).unwrap()]
-                                [*box_x] = game_data.grid[*box_y][*box_x];
+                            game_data.grid[box_y.checked_add_signed(vector_y).unwrap()][*box_x] =
+                                game_data.grid[*box_y][*box_x];
 
                             game_data.grid[*box_y][*box_x] = LocationType2::Open;
 

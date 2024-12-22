@@ -25,22 +25,27 @@ enum DirPad {
 }
 
 fn parse_inputs(input: &str) -> Vec<Vec<NumPad>> {
-    input.lines().map(|line| line.bytes().map(|num| {
-        match num {
-            b'1' => NumPad::One,
-            b'2' => NumPad::Two,
-            b'3' => NumPad::Three,
-            b'4' => NumPad::Four,
-            b'5' => NumPad::Five,
-            b'6' => NumPad::Six,
-            b'7' => NumPad::Seven,
-            b'8' => NumPad::Eight,
-            b'9' => NumPad::Nine,
-            b'0' => NumPad::Zero,
-            b'A' => NumPad::A,
-            _ => panic!("Invalid input"),
-        }
-    }).collect()).collect()
+    input
+        .lines()
+        .map(|line| {
+            line.bytes()
+                .map(|num| match num {
+                    b'1' => NumPad::One,
+                    b'2' => NumPad::Two,
+                    b'3' => NumPad::Three,
+                    b'4' => NumPad::Four,
+                    b'5' => NumPad::Five,
+                    b'6' => NumPad::Six,
+                    b'7' => NumPad::Seven,
+                    b'8' => NumPad::Eight,
+                    b'9' => NumPad::Nine,
+                    b'0' => NumPad::Zero,
+                    b'A' => NumPad::A,
+                    _ => panic!("Invalid input"),
+                })
+                .collect()
+        })
+        .collect()
 }
 /*
     +---+---+
@@ -49,8 +54,8 @@ fn parse_inputs(input: &str) -> Vec<Vec<NumPad>> {
 | < | v | > |
 +---+---+---+
 */
-fn traverse_dir_pad(start_pos: &DirPad, end_pos: &DirPad ) -> (DirPad, String) {
-    let commands: String = match (start_pos,end_pos) {
+fn traverse_dir_pad(start_pos: &DirPad, end_pos: &DirPad) -> (DirPad, String) {
+    let commands: String = match (start_pos, end_pos) {
         (DirPad::Up, DirPad::Up) => String::new(),
         (DirPad::Up, DirPad::Down) => "v".to_string(),
         (DirPad::Up, DirPad::Left) => "v<".to_string(),
@@ -85,14 +90,17 @@ fn traverse_dir_pad_for_all(inputs: &String) -> String {
     let mut commands = String::new();
     for dir_pad_button in inputs.bytes() {
         // traverse the num pad by moving the cursor to the desired number
-        let (new_dir_pad_pos, num_commands) = traverse_dir_pad(&dir_pad_pos, &match dir_pad_button {
-            b'^' => DirPad::Up,
-            b'v' => DirPad::Down,
-            b'<' => DirPad::Left,
-            b'>' => DirPad::Right,
-            b'A' => DirPad::A,
-            _ => panic!("Invalid input {}", dir_pad_button as char),
-        });
+        let (new_dir_pad_pos, num_commands) = traverse_dir_pad(
+            &dir_pad_pos,
+            &match dir_pad_button {
+                b'^' => DirPad::Up,
+                b'v' => DirPad::Down,
+                b'<' => DirPad::Left,
+                b'>' => DirPad::Right,
+                b'A' => DirPad::A,
+                _ => panic!("Invalid input {}", dir_pad_button as char),
+            },
+        );
         commands.push_str(&num_commands);
         //let (new_dir_pad_pos, num_commands) = traverse_dir_pad(&dir_pad_pos, &DirPad::A);
         //commands.push_str(&num_commands);
@@ -240,7 +248,7 @@ fn traverse_num_pad(start_pos: &NumPad, end_pos: &NumPad) -> (NumPad, String) {
     (*end_pos, commands)
 }
 
-fn get_num_from_numpad( num: &NumPad) -> usize {
+fn get_num_from_numpad(num: &NumPad) -> usize {
     match num {
         NumPad::One => 1,
         NumPad::Two => 2,
@@ -258,8 +266,8 @@ fn get_num_from_numpad( num: &NumPad) -> usize {
 
 fn get_num_from_input(input: &Vec<NumPad>) -> usize {
     let mut num = 0;
-    num += get_num_from_numpad(&input[0])*100;
-    num += get_num_from_numpad(&input[1])*10;
+    num += get_num_from_numpad(&input[0]) * 100;
+    num += get_num_from_numpad(&input[1]) * 10;
     num += get_num_from_numpad(&input[2]);
     num
 }
@@ -285,16 +293,15 @@ pub fn part_one(input: &str) -> Option<usize> {
             all_numpad_commands.push_str(&num_commands);
             //println!("numpad: {:?} -> {}", num_pad_button, num_commands);
 
-            let dir1_commands = traverse_dir_pad_for_all( &num_commands);
+            let dir1_commands = traverse_dir_pad_for_all(&num_commands);
             robot1_commands.push_str(&dir1_commands);
             all_robot1_commands.push_str(&dir1_commands);
             //println!("robot1: {}", dir1_commands);
 
-            let dir2_commands = traverse_dir_pad_for_all( &dir1_commands);
+            let dir2_commands = traverse_dir_pad_for_all(&dir1_commands);
             robot2_commands.push_str(&dir2_commands);
             all_robot2_commands.push_str(&dir2_commands);
             //println!("robot2: {}", dir2_commands);
-
 
             //let (_dir3_pos, dir3_commands) = traverse_dir_pad_for_all(&DirPad::A, &dir2_commands);
             //me_commands.push_str(&dir3_commands);
@@ -310,8 +317,12 @@ pub fn part_one(input: &str) -> Option<usize> {
     Some(complexity)
 }
 
-fn robot_presses(presses: &String, robot_count: usize, cache: &mut HashMap::<(String,usize),usize>) -> usize {
-    let input_count ;
+fn robot_presses(
+    presses: &String,
+    robot_count: usize,
+    cache: &mut HashMap<(String, usize), usize>,
+) -> usize {
+    let input_count;
 
     if let Some(count) = cache.get(&(presses.clone(), robot_count)) {
         input_count = *count;
@@ -320,7 +331,7 @@ fn robot_presses(presses: &String, robot_count: usize, cache: &mut HashMap::<(St
         if robot_count == 0 {
             input_count = dir_pushes.len();
         } else {
-            input_count = dir_pushes.chars().fold(0,|sum, byte| {
+            input_count = dir_pushes.chars().fold(0, |sum, byte| {
                 // computer count for each byte at robot_count - 1
                 sum + robot_presses(&byte.to_string(), robot_count - 1, cache)
             });
@@ -337,13 +348,12 @@ pub fn part_two(input: &str) -> Option<usize> {
 pub fn part_two_ex(input: &str, robot_count: usize) -> Option<usize> {
     let inputs = parse_inputs(input);
     let mut total_complexity = 0;
-    let mut push_cache: HashMap::<(String, usize), usize> = HashMap::new();
+    let mut push_cache: HashMap<(String, usize), usize> = HashMap::new();
     for input in inputs {
         println!("input: {:?}", input);
         // starting at the bottom right corner
         let mut num_pad_pos = NumPad::A;
         for num_pad_button in &input {
-
             // traverse the num pad by moving the cursor to the desired number
             let (new_num_pad_pos, num_commands) = traverse_num_pad(&num_pad_pos, &num_pad_button);
             num_pad_pos = new_num_pad_pos;
@@ -365,71 +375,103 @@ mod tests {
         assert_eq!(result, Some(126384));
     }
 
-     #[test]
-     fn test_part_one_029() {
-         let result = part_one("029A");
-         assert_eq!(result, Some("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A".len() * 29));
-     }
-     #[test]
-     fn test_part_one_980() {
-         let result = part_one("980A");
-         assert_eq!(result, Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 980));
-     }
-     #[test]
-     fn test_part_one_179() {
-         let result = part_one("179A");
-         assert_eq!(result, Some("<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 179));
-     }
-     #[test]
-     fn test_part_one_456() {
-         let result = part_one("456A");
-         assert_eq!(result, Some("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A".len() * 456));
-     }
-     #[test]
-     fn test_part_one_379() {
-         let result = part_one("379A");
-         assert_eq!(result, Some("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 379));
-     }
-
-
+    #[test]
+    fn test_part_one_029() {
+        let result = part_one("029A");
+        assert_eq!(
+            result,
+            Some("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A".len() * 29)
+        );
+    }
+    #[test]
+    fn test_part_one_980() {
+        let result = part_one("980A");
+        assert_eq!(
+            result,
+            Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 980)
+        );
+    }
+    #[test]
+    fn test_part_one_179() {
+        let result = part_one("179A");
+        assert_eq!(
+            result,
+            Some(
+                "<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 179
+            )
+        );
+    }
+    #[test]
+    fn test_part_one_456() {
+        let result = part_one("456A");
+        assert_eq!(
+            result,
+            Some("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A".len() * 456)
+        );
+    }
+    #[test]
+    fn test_part_one_379() {
+        let result = part_one("379A");
+        assert_eq!(
+            result,
+            Some("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 379)
+        );
+    }
 
     #[test]
     #[ignore]
     fn test_part_two_ex() {
-        let result = part_two_ex(&advent_of_code::template::read_file("examples", DAY),2);
+        let result = part_two_ex(&advent_of_code::template::read_file("examples", DAY), 2);
         assert_eq!(result, Some(126384));
     }
 
-     #[test]
-     #[ignore]
-     fn test_part_two_029() {
-         let result = part_two_ex("029A", 2);
-         assert_eq!(result, Some("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A".len() * 29));
-     }
-     #[test]
-     #[ignore]
-     fn test_part_two_980() {
-         let result = part_two_ex("980A", 2);
-         assert_eq!(result, Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 980));
-     }
-     #[test]
-     #[ignore]
-     fn test_part_two_179() {
-         let result = part_two_ex("179A", 2);
-         assert_eq!(result, Some("<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 179));
-     }
-     #[test]
-     #[ignore]
-     fn test_part_two_456() {
-         let result = part_two_ex("456A", 2);
-         assert_eq!(result, Some("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A".len() * 456));
-     }
-     #[test]
-     #[ignore]
-     fn test_part_two_379() {
-         let result = part_two_ex("379A", 2);
-         assert_eq!(result, Some("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 379));
-     }
+    #[test]
+    #[ignore]
+    fn test_part_two_029() {
+        let result = part_two_ex("029A", 2);
+        assert_eq!(
+            result,
+            Some("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A".len() * 29)
+        );
+    }
+    #[test]
+    #[ignore]
+    fn test_part_two_980() {
+        let result = part_two_ex("980A", 2);
+        assert_eq!(
+            result,
+            Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 980)
+        );
+    }
+    #[test]
+    #[ignore]
+    fn test_part_two_179() {
+        let result = part_two_ex("179A", 2);
+        assert_eq!(
+            result,
+            Some(
+                "<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 179
+            )
+        );
+    }
+    #[test]
+    #[ignore]
+    fn test_part_two_456() {
+        let result = part_two_ex("456A", 2);
+        assert_eq!(
+            result,
+            Some("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A".len() * 456)
+        );
+    }
+    #[test]
+    #[ignore]
+    fn test_part_two_379() {
+        let result = part_two_ex("379A", 2);
+        assert_eq!(
+            result,
+            Some("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 379)
+        );
+    }
 
     #[test]
     #[ignore]
