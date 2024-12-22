@@ -1,6 +1,7 @@
 advent_of_code::solution!(21);
+use std::collections::HashMap;
 
-#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+#[derive(Clone, Copy, PartialEq, Eq, Debug, Hash)]
 enum NumPad {
     One,
     Two,
@@ -79,8 +80,8 @@ fn traverse_dir_pad(start_pos: &DirPad, end_pos: &DirPad ) -> (DirPad, String) {
     (*end_pos, commands)
 }
 
-fn traverse_dir_pad_for_all(start_pos: &DirPad, inputs: &String) -> (DirPad, String) {
-    let mut dir_pad_pos = *start_pos;
+fn traverse_dir_pad_for_all(inputs: &String) -> String {
+    let mut dir_pad_pos = DirPad::A;
     let mut commands = String::new();
     for dir_pad_button in inputs.bytes() {
         // traverse the num pad by moving the cursor to the desired number
@@ -90,7 +91,7 @@ fn traverse_dir_pad_for_all(start_pos: &DirPad, inputs: &String) -> (DirPad, Str
             b'<' => DirPad::Left,
             b'>' => DirPad::Right,
             b'A' => DirPad::A,
-            _ => panic!("Invalid input"),
+            _ => panic!("Invalid input {}", dir_pad_button as char),
         });
         commands.push_str(&num_commands);
         //let (new_dir_pad_pos, num_commands) = traverse_dir_pad(&dir_pad_pos, &DirPad::A);
@@ -98,7 +99,7 @@ fn traverse_dir_pad_for_all(start_pos: &DirPad, inputs: &String) -> (DirPad, Str
         commands.push_str("A");
         dir_pad_pos = new_dir_pad_pos;
     }
-    (dir_pad_pos, commands)
+    commands
 }
 /*
 +---+---+---+
@@ -284,12 +285,12 @@ pub fn part_one(input: &str) -> Option<usize> {
             all_numpad_commands.push_str(&num_commands);
             //println!("numpad: {:?} -> {}", num_pad_button, num_commands);
 
-            let (_dir1_pos, dir1_commands) = traverse_dir_pad_for_all( &DirPad::A, &num_commands);
+            let dir1_commands = traverse_dir_pad_for_all( &num_commands);
             robot1_commands.push_str(&dir1_commands);
             all_robot1_commands.push_str(&dir1_commands);
             //println!("robot1: {}", dir1_commands);
 
-            let (_dir2_pos, dir2_commands) = traverse_dir_pad_for_all( &DirPad::A, &dir1_commands);
+            let dir2_commands = traverse_dir_pad_for_all( &dir1_commands);
             robot2_commands.push_str(&dir2_commands);
             all_robot2_commands.push_str(&dir2_commands);
             //println!("robot2: {}", dir2_commands);
@@ -309,8 +310,49 @@ pub fn part_one(input: &str) -> Option<usize> {
     Some(complexity)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
-    None
+fn robot_presses(presses: &String, robot_count: usize, cache: &mut HashMap::<(String,usize),usize>) -> usize {
+    let input_count ;
+
+    if let Some(count) = cache.get(&(presses.clone(), robot_count)) {
+        input_count = *count;
+    } else {
+        let dir_pushes = traverse_dir_pad_for_all(presses);
+        if robot_count == 0 {
+            input_count = dir_pushes.len();
+        } else {
+            input_count = dir_pushes.chars().fold(0,|sum, byte| {
+                // computer count for each byte at robot_count - 1
+                sum + robot_presses(&byte.to_string(), robot_count - 1, cache)
+            });
+            cache.insert((presses.clone(), robot_count), input_count);
+        }
+    }
+    input_count
+}
+
+pub fn part_two(input: &str) -> Option<usize> {
+    part_two_ex(input, 25)
+}
+
+pub fn part_two_ex(input: &str, robot_count: usize) -> Option<usize> {
+    let inputs = parse_inputs(input);
+    let mut total_complexity = 0;
+    let mut push_cache: HashMap::<(String, usize), usize> = HashMap::new();
+    for input in inputs {
+        println!("input: {:?}", input);
+        // starting at the bottom right corner
+        let mut num_pad_pos = NumPad::A;
+        for num_pad_button in &input {
+
+            // traverse the num pad by moving the cursor to the desired number
+            let (new_num_pad_pos, num_commands) = traverse_num_pad(&num_pad_pos, &num_pad_button);
+            num_pad_pos = new_num_pad_pos;
+            let input_count = robot_presses(&num_commands, robot_count, &mut push_cache);
+
+            total_complexity += input_count * get_num_from_input(&input);
+        }
+    }
+    Some(total_complexity)
 }
 
 #[cfg(test)]
@@ -346,6 +388,40 @@ mod tests {
      #[test]
      fn test_part_one_379() {
          let result = part_one("379A");
+         assert_eq!(result, Some("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 379));
+     }
+
+
+
+    #[test]
+    fn test_part_two_ex() {
+        let result = part_two_ex(&advent_of_code::template::read_file("examples", DAY),2);
+        assert_eq!(result, Some(126384));
+    }
+
+     #[test]
+     fn test_part_two_029() {
+         let result = part_two_ex("029A", 2);
+         assert_eq!(result, Some("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A".len() * 29));
+     }
+     #[test]
+     fn test_part_two_980() {
+         let result = part_two_ex("980A", 2);
+         assert_eq!(result, Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 980));
+     }
+     #[test]
+     fn test_part_two_179() {
+         let result = part_two_ex("179A", 2);
+         assert_eq!(result, Some("<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 179));
+     }
+     #[test]
+     fn test_part_two_456() {
+         let result = part_two_ex("456A", 2);
+         assert_eq!(result, Some("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A".len() * 456));
+     }
+     #[test]
+     fn test_part_two_379() {
+         let result = part_two_ex("379A", 2);
          assert_eq!(result, Some("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 379));
      }
 
