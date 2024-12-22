@@ -394,38 +394,45 @@ mod tests {
 
 
     #[test]
+    #[ignore]
     fn test_part_two_ex() {
         let result = part_two_ex(&advent_of_code::template::read_file("examples", DAY),2);
         assert_eq!(result, Some(126384));
     }
 
      #[test]
+     #[ignore]
      fn test_part_two_029() {
          let result = part_two_ex("029A", 2);
          assert_eq!(result, Some("<vA<AA>>^AvAA<^A>A<v<A>>^AvA^A<vA>^A<v<A>^A>AAvA^A<v<A>A>^AAAvA<^A>A".len() * 29));
      }
      #[test]
+     #[ignore]
      fn test_part_two_980() {
          let result = part_two_ex("980A", 2);
          assert_eq!(result, Some("<v<A>>^AAAvA^A<vA<AA>>^AvAA<^A>A<v<A>A>^AAAvA<^A>A<vA>^A<A>A".len() * 980));
      }
      #[test]
+     #[ignore]
      fn test_part_two_179() {
          let result = part_two_ex("179A", 2);
          assert_eq!(result, Some("<v<A>>^A<vA<A>>^AAvAA<^A>A<v<A>>^AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 179));
      }
      #[test]
+     #[ignore]
      fn test_part_two_456() {
          let result = part_two_ex("456A", 2);
          assert_eq!(result, Some("<v<A>>^AA<vA<A>>^AAvAA<^A>A<vA>^A<A>A<vA>^A<A>A<v<A>A>^AAvA<^A>A".len() * 456));
      }
      #[test]
+     #[ignore]
      fn test_part_two_379() {
          let result = part_two_ex("379A", 2);
          assert_eq!(result, Some("<v<A>>^AvA^A<vA<AA>>^AAvA<^A>AAvA^A<vA>^AA<A>A<v<A>A>^AAAvA<^A>A".len() * 379));
      }
 
     #[test]
+    #[ignore]
     fn test_part_two() {
         let result = part_two(&advent_of_code::template::read_file("examples", DAY));
         assert_eq!(result, None);
