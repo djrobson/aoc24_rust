@@ -18,8 +18,7 @@ fn get_next_prn(current: i32) -> i32 {
     Finally, prune the secret number. */
     let step1 = ((current << 6) ^ current) & 0xffffff;
     let step2 = ((step1 >> 5) ^ step1) & 0xffffff;
-    let step3 = ((step2 << 11) ^ step2) & 0xffffff;
-    step3
+    ((step2 << 11) ^ step2) & 0xffffff
 }
 
 pub fn part_one(input: &str) -> Option<usize> {
@@ -61,10 +60,7 @@ pub fn part_two(input: &str) -> Option<usize> {
             .tuple_windows()
             .for_each(|(a, b, c, d, e)| {
                 let key: (i32, i32, i32, i32) = (b - a, c - b, d - c, e - d);
-                if !results_for_patterns.contains_key(&key) {
-                    // remember the index of the first time we see this pattern
-                    results_for_patterns.insert(key, *e);
-                }
+                results_for_patterns.entry(key).or_insert(*e);
             });
         pattern_for_sequence.push(results_for_patterns);
     }

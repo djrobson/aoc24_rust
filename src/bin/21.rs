@@ -85,7 +85,7 @@ fn traverse_dir_pad(start_pos: &DirPad, end_pos: &DirPad) -> (DirPad, String) {
     (*end_pos, commands)
 }
 
-fn traverse_dir_pad_for_all(inputs: &String) -> String {
+fn traverse_dir_pad_for_all(inputs: &str) -> String {
     let mut dir_pad_pos = DirPad::A;
     let mut commands = String::new();
     for dir_pad_button in inputs.bytes() {
@@ -104,7 +104,7 @@ fn traverse_dir_pad_for_all(inputs: &String) -> String {
         commands.push_str(&num_commands);
         //let (new_dir_pad_pos, num_commands) = traverse_dir_pad(&dir_pad_pos, &DirPad::A);
         //commands.push_str(&num_commands);
-        commands.push_str("A");
+        commands.push('A');
         dir_pad_pos = new_dir_pad_pos;
     }
     commands
@@ -244,7 +244,7 @@ fn traverse_num_pad(start_pos: &NumPad, end_pos: &NumPad) -> (NumPad, String) {
         (NumPad::A, NumPad::Zero) => "<".to_string(),
         (NumPad::A, NumPad::A) => String::new(),
     };
-    commands.push_str("A");
+    commands.push('A');
     (*end_pos, commands)
 }
 
@@ -264,7 +264,7 @@ fn get_num_from_numpad(num: &NumPad) -> usize {
     }
 }
 
-fn get_num_from_input(input: &Vec<NumPad>) -> usize {
+fn get_num_from_input(input: &[NumPad]) -> usize {
     let mut num = 0;
     num += get_num_from_numpad(&input[0]) * 100;
     num += get_num_from_numpad(&input[1]) * 10;
@@ -288,7 +288,7 @@ pub fn part_one(input: &str) -> Option<usize> {
         let mut num_pad_pos = NumPad::A;
         for num_pad_button in &input {
             // traverse the num pad by moving the cursor to the desired number
-            let (new_num_pad_pos, num_commands) = traverse_num_pad(&num_pad_pos, &num_pad_button);
+            let (new_num_pad_pos, num_commands) = traverse_num_pad(&num_pad_pos, num_pad_button);
             num_pad_pos = new_num_pad_pos;
             all_numpad_commands.push_str(&num_commands);
             //println!("numpad: {:?} -> {}", num_pad_button, num_commands);
@@ -318,13 +318,13 @@ pub fn part_one(input: &str) -> Option<usize> {
 }
 
 fn robot_presses(
-    presses: &String,
+    presses: &str,
     robot_count: usize,
     cache: &mut HashMap<(String, usize), usize>,
 ) -> usize {
     let input_count;
 
-    if let Some(count) = cache.get(&(presses.clone(), robot_count)) {
+    if let Some(count) = cache.get(&(presses.to_owned(), robot_count)) {
         input_count = *count;
     } else {
         let dir_pushes = traverse_dir_pad_for_all(presses);
@@ -335,7 +335,7 @@ fn robot_presses(
                 // computer count for each byte at robot_count - 1
                 sum + robot_presses(&byte.to_string(), robot_count - 1, cache)
             });
-            cache.insert((presses.clone(), robot_count), input_count);
+            cache.insert((presses.to_owned(), robot_count), input_count);
         }
     }
     input_count
@@ -355,7 +355,7 @@ pub fn part_two_ex(input: &str, robot_count: usize) -> Option<usize> {
         let mut num_pad_pos = NumPad::A;
         for num_pad_button in &input {
             // traverse the num pad by moving the cursor to the desired number
-            let (new_num_pad_pos, num_commands) = traverse_num_pad(&num_pad_pos, &num_pad_button);
+            let (new_num_pad_pos, num_commands) = traverse_num_pad(&num_pad_pos, num_pad_button);
             num_pad_pos = new_num_pad_pos;
             let input_count = robot_presses(&num_commands, robot_count, &mut push_cache);
 
