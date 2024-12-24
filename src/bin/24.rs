@@ -98,7 +98,7 @@ pub fn part_one(input: &str) -> Option<usize> {
 
     let result: usize = keys
         .iter()
-        .inspect(|wire| println!("{}: {}", wire, wires.get(**wire).unwrap()))
+        //.inspect(|wire| println!("{}: {}", wire, wires.get(**wire).unwrap()))
         .filter(|wire| wire.starts_with("z"))
         .fold(0, |result, wire| {
             (result << 1) | *wires.get(*wire).unwrap() as usize
@@ -107,7 +107,11 @@ pub fn part_one(input: &str) -> Option<usize> {
     Some(result)
 }
 
-pub fn part_two(input: &str) -> Option<u32> {
+pub fn part_two(input: &str) -> Option<String> {
+    part_two_ex(input, 4)
+}
+
+pub fn part_two_ex(input: &str, swaps: u32) -> Option<String> {
     None
 }
 
@@ -140,7 +144,28 @@ x02 OR y02 -> z02",
 
     #[test]
     fn test_part_two() {
-        let result = part_two(&advent_of_code::template::read_file("examples", DAY));
-        assert_eq!(result, None);
+        let result = part_two_ex(
+            "x00: 0
+x01: 1
+x02: 0
+x03: 1
+x04: 0
+x05: 1
+y00: 0
+y01: 0
+y02: 1
+y03: 1
+y04: 0
+y05: 1
+
+x00 AND y00 -> z05
+x01 AND y01 -> z02
+x02 AND y02 -> z01
+x03 AND y03 -> z03
+x04 AND y04 -> z04
+x05 AND y05 -> z00",
+            2,
+        );
+        assert_eq!(result, Some("z00,z01,z02,z05".to_string()));
     }
 }
