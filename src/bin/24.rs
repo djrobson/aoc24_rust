@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 use itertools::Itertools;
+use petgraph::graphmap::DiGraphMap;
 
 advent_of_code::solution!(24);
 
@@ -112,6 +113,28 @@ pub fn part_two(input: &str) -> Option<String> {
 }
 
 pub fn part_two_ex(input: &str, swaps: u32) -> Option<String> {
+    let (mut wires, ops) = parse_input(input);
+    let mut di_graph: DiGraphMap<&str, &str> = DiGraphMap::new();
+    for op in ops.iter() {
+        match op {
+            Op::And(x, y, z) => {
+                di_graph.add_edge(x, z, "&");
+                di_graph.add_edge(y, z, "&");
+            }
+            Op::Or(x, y, z) => {
+                di_graph.add_edge(x, z, "|");
+                di_graph.add_edge(y, z, "|");
+            }
+            Op::Xor(x, y, z) => {
+                di_graph.add_edge(x, z, "^");
+                di_graph.add_edge(y, z, "^");
+            }
+        }
+    }
+    // print di_graph in dot format
+    //println!("{:?}", di_graph);
+    println!("{:?}", petgraph::dot::Dot::new(&di_graph));
+
     None
 }
 
@@ -143,6 +166,7 @@ x02 OR y02 -> z02",
     }
 
     #[test]
+    #[ignore]
     fn test_part_two() {
         let result = part_two_ex(
             "x00: 0
