@@ -133,6 +133,11 @@ pub fn part_two_ex(input: &str, swaps: u32) -> Option<String> {
     }
     // print di_graph in dot format
     //println!("{:?}", di_graph);
+    // fph z15
+    // gds z21
+    // z34 cqk
+    // jrs wrk
+    // cqk,fph,gds,jrs,wrk,z15,z21,z34
     println!("{:?}", petgraph::dot::Dot::new(&di_graph));
 
     None
